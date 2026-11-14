@@ -1,0 +1,115 @@
+<div class="page">
+  <p class="breadcrumb"><a routerLink="/postulaciones">Postulaciones</a></p>
+  <h1>Detalle del candidato</h1>
+  <a routerLink="/postulaciones" class="volver">&larr; Regresar al listado</a>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && noEncontrada">No se encontró esta postulación.</p>
+
+  <div class="form-layout" *ngIf="!cargando && candidato as c">
+    <div class="card">
+      <div style="display:flex; gap:0.9rem; align-items:center; margin-bottom: 1rem;">
+        <div class="avatar-circle" style="width:52px;height:52px;font-size:1rem;">{{ siglas }}</div>
+        <div>
+          <h2 style="margin-bottom:2px;">{{ c.nombre }} {{ c.apellido }}</h2>
+          <p class="subt" style="margin:0;">{{ c.disponibilidad || 'Formación' }}{{ anios ? ' · ' + anios + ' años' : '' }}</p>
+        </div>
+      </div>
+
+      <div class="info-lista">
+        <div class="fila"><span class="k">Correo</span><span class="v">{{ c.correo }}</span></div>
+        <div class="fila"><span class="k">Teléfono</span><span class="v">{{ c.telefono || '—' }}</span></div>
+        <div class="fila"><span class="k">Ubicación</span><span class="v">{{ c.ciudad || '—' }}{{ c.pais ? ', ' + c.pais : '' }}</span></div>
+        <div class="fila"><span class="k">Disponibilidad</span><span class="v">{{ c.disponibilidad || '—' }}</span></div>
+      </div>
+
+      <h3 style="margin-top:1.2rem;">Experiencia</h3>
+      <p class="vacia" *ngIf="!c.experiencias.length">Sin experiencia registrada.</p>
+      <div class="info-lista">
+        <div class="fila" *ngFor="let e of c.experiencias">
+          <span class="k">{{ e.puesto }} · {{ e.empresa }}</span>
+          <span class="v">{{ e.fechaInicio | date: 'yyyy' }} — {{ e.actualmenteTrabaja ? 'Actual' : (e.fechaFin | date: 'yyyy') }}</span>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.2rem;">Educación</h3>
+      <p class="vacia" *ngIf="!c.educaciones.length">Sin educación registrada.</p>
+      <div class="info-lista">
+        <div class="fila" *ngFor="let ed of c.educaciones">
+          <span class="k">{{ ed.titulo }} · {{ ed.institucion }}</span>
+          <span class="v">
+            {{ ed.fechaInicio ? (ed.fechaInicio | date: 'yyyy') : '—' }} — {{ ed.estado === 'EN_CURSO' ? 'En curso' : (ed.fechaFin ? (ed.fechaFin | date: 'yyyy') : 'Sin fecha fin') }}
+          </span>
+        </div>
+      </div>
+
+      <h3 style="margin-top:1.2rem;">Habilidades</h3>
+      <p class="vacia" *ngIf="!c.habilidades.length">Sin habilidades registradas.</p>
+      <span class="chip" *ngFor="let h of c.habilidades">{{ nombreHabilidad(h.idHabilidad) }} · {{ h.nivel || 'Sin nivel' }}</span>
+
+      <div class="card cv-box" *ngIf="c.curriculumNombreArchivo">
+        <span class="cv-icono">PDF</span>
+        <div style="flex:1;">
+          <strong>{{ c.curriculumNombreArchivo }}</strong>
+          <div class="fecha">Cargado el {{ c.curriculumFechaCarga | date: 'dd/MM/yyyy' }}</div>
+        </div>
+        <button class="btn btn-secundario" type="button" (click)="descargarCv()">
+          Ver currículum
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-secundario" style="margin-top:1.2rem;" (click)="nav.ir('/candidatos/detalle', { id: c.idCandidato })">Ver perfil completo</button>
+    </div>
+
+    <div>
+      <div class="card" *ngIf="postulacion as p">
+        <p class="kpi-etiqueta">Postulación</p>
+        <h3 style="margin-bottom:2px;">{{ p.tituloVacante }}</h3>
+        <p class="subt" style="margin-top:0;">Postulado el {{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</p>
+
+        <div class="compat-wrap" *ngIf="analisis as a" [class]="claseCompatibilidad(a.porcentajeCoincidencia)" style="margin: 0.8rem 0;">
+          <span class="compat-pct" style="font-size:1.4rem;">{{ a.porcentajeCoincidencia }}%</span>
+          <span style="font-weight:600; font-size:0.85rem;">{{ a.clasificacion === 'ALTA' ? 'Compatibilidad Alta' : a.clasificacion === 'MEDIA' ? 'Compatibilidad Media' : 'Compatibilidad Baja' }}</span>
+        </div>
+        <button class="btn btn-secundario" *ngIf="!analisis" [disabled]="generando" (click)="generarAnalisis()" style="margin: 0.6rem 0;">
+          {{ generando ? 'Analizando...' : 'Generar análisis de compatibilidad' }}
+        </button>
+
+        <p style="margin: 0.6rem 0;">Estado: <span [class]="claseBadge(p.estado)">{{ p.estado }}</span></p>
+
+        <p *ngIf="mensajeEstado" [class]="mensajeEstado.tipo === 'exito' ? 'alert-exito' : 'alert-error'" style="margin: 0.6rem 0;">
+          {{ mensajeEstado.texto }}
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <button class="btn btn-primario" [disabled]="cambiandoEstado || p.estado === 'PREOSELECCIONADO'" (click)="cambiarEstado('PREOSELECCIONADO')">
+            Seleccionar para entrevista
+          </button>
+          <button class="btn btn-exito" [disabled]="cambiandoEstado || p.estado === 'CONTRATADO'" (click)="cambiarEstado('CONTRATADO')">
+            Contratar candidato
+          </button>
+          <button class="btn btn-secundario" (click)="mostrarSelectorEstado = !mostrarSelectorEstado">Cambiar estado</button>
+          <select *ngIf="mostrarSelectorEstado" (change)="cambiarEstado($any($event.target).value)" [disabled]="cambiandoEstado">
+            <option value="" selected disabled>Elige un estado...</option>
+            <option *ngFor="let e of estados" [value]="e">{{ e }}</option>
+          </select>
+          <button class="btn btn-peligro" [disabled]="cambiandoEstado || p.estado === 'RECHAZADA'" (click)="cambiarEstado('RECHAZADA')">
+            Descartar candidato
+          </button>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="analisis as a" style="margin-top: 1rem;">
+        <p class="kpi-etiqueta">Resultado del análisis</p>
+        <p>{{ a.resumen }}</p>
+        <button class="btn btn-secundario" (click)="irAAnalisis()">
+          Ver comparación completa
+        </button>
+
+        <div class="aviso-box">
+          El resultado generado funciona como apoyo para Recursos Humanos y no representa una decisión automática de contratación.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

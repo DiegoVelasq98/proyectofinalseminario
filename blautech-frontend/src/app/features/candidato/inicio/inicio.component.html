@@ -1,0 +1,47 @@
+<div class="page">
+  <h1>Inicio</h1>
+  <p *ngIf="cargando">Cargando...</p>
+
+  <ng-container *ngIf="!cargando">
+    <section class="card bienvenida">
+      <div>
+        <h2>Bienvenido, {{ perfil?.nombre || 'candidato' }} {{ perfil?.apellido || '' }}</h2>
+        <p *ngIf="!perfilInexistente">
+          Su perfil está completo al {{ porcentajePerfil }}%.
+          <ng-container *ngIf="porcentajePerfil < 100"> Complete su perfil y su currículum para mejorar el resultado de sus postulaciones.</ng-container>
+        </p>
+        <p *ngIf="perfilInexistente">Todavía no has creado tu perfil de candidato.</p>
+      </div>
+      <div class="bienvenida-acciones">
+        <a class="btn btn-primario" routerLink="/curriculum">Cargar currículum</a>
+        <a class="btn btn-secundario" routerLink="/vacantes">Ver vacantes</a>
+      </div>
+    </section>
+
+    <div class="grid-2 inicio-grid">
+      <section class="card">
+        <h2>Mis postulaciones</h2>
+        <p *ngIf="!postulaciones.length" class="placeholder">Todavía no te has postulado a ninguna vacante.</p>
+        <div class="fila-postulacion" *ngFor="let p of postulaciones.slice(0, 5)">
+          <div>
+            <p class="fila-titulo">{{ p.tituloVacante }}</p>
+            <p class="fila-sub">Postulado el {{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</p>
+          </div>
+          <span [class]="claseBadge(p.estado)">{{ p.estado }}</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Vacantes recomendadas</h2>
+        <p *ngIf="!vacantesRecomendadas.length" class="placeholder">No hay vacantes activas por el momento.</p>
+        <div class="fila-postulacion" *ngFor="let v of vacantesRecomendadas">
+          <div>
+            <p class="fila-titulo">{{ v.titulo }}</p>
+            <p class="fila-sub">{{ v.areaNombre }} · {{ v.modalidad }}</p>
+          </div>
+          <a class="btn btn-secundario" routerLink="/vacantes">Ver vacante</a>
+        </div>
+      </section>
+    </div>
+  </ng-container>
+</div>

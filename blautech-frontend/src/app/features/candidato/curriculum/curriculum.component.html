@@ -1,0 +1,102 @@
+<div class="page">
+  <h1>Mi currículum</h1>
+
+  <div class="cv-layout" *ngIf="!cargandoPerfil">
+    <section class="card">
+      <h2>Carga de currículum</h2>
+      <p class="ayuda">Formatos permitidos: PDF o DOCX, máximo 5 MB.</p>
+
+      <div
+        class="dropzone"
+        [class.arrastrando]="arrastrando"
+        (drop)="onDrop($event)"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave()"
+      >
+        <p class="nombre-archivo">{{ archivoSeleccionado?.name || perfil?.curriculumNombreArchivo || 'Ningún archivo seleccionado' }}</p>
+        <p class="subtexto" *ngIf="paso === 'inicial'">Arrastre el documento o selecciónelo desde su dispositivo.</p>
+        <p class="subtexto" *ngIf="paso === 'seleccionado'">Archivo listo para cargar.</p>
+        <p class="subtexto" *ngIf="paso === 'procesando'">Subiendo y analizando el documento...</p>
+        <p class="subtexto ok" *ngIf="paso === 'completado'">La información fue asociada a su perfil.</p>
+
+        <div class="dropzone-botones">
+          <label class="btn btn-secundario">
+            Seleccionar archivo
+            <input type="file" accept=".pdf,.docx" (change)="onArchivoElegido($event)" hidden />
+          </label>
+          <button class="btn btn-primario" type="button" [disabled]="!archivoSeleccionado || paso === 'procesando'" (click)="cargar()">
+            Cargar currículum
+          </button>
+        </div>
+      </div>
+
+      <p class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+      <ol class="pasos-lista">
+        <li *ngFor="let p of pasos; let i = index">
+          <span class="paso-numero" [class.completado]="p.estado === 'Completado'" [class.error]="p.estado === 'Error'">{{ i + 1 }}</span>
+          <span class="paso-label">{{ p.label }}</span>
+          <span class="paso-estado" [ngClass]="{'completado': p.estado === 'Completado', 'proceso': p.estado === 'En proceso', 'error': p.estado === 'Error'}">{{ p.estado }}</span>
+        </li>
+      </ol>
+
+      <div class="cv-actual" *ngIf="perfil?.curriculumNombreArchivo && paso !== 'completado'">
+        <p>Ya tienes un currículum registrado: <strong>{{ perfil?.curriculumNombreArchivo }}</strong></p>
+        <button class="btn btn-secundario" type="button" (click)="descargarActual()">Descargar</button>
+      </div>
+    </section>
+
+    <section class="card info-cv">
+      <ng-container *ngIf="!resultado">
+        <h2>Información del currículum</h2>
+        <p class="placeholder">Al finalizar el procesamiento se mostrará aquí la información identificada en el documento.</p>
+      </ng-container>
+
+      <ng-container *ngIf="resultado as r">
+        <p class="info-cv-titulo">
+          <span class="punto-ok"></span>
+          Procesamiento completado
+        </p>
+        <p class="ayuda">Información obtenida del documento {{ r.nombreArchivo }}.</p>
+
+        <div class="info-fila"><span>Nombre</span><strong>{{ r.nombreCompleto }}</strong></div>
+        <div class="info-fila"><span>Profesión</span><strong>{{ r.profesion }}</strong></div>
+        <div class="info-fila"><span>Experiencia</span><strong>{{ r.experiencia }}</strong></div>
+        <div class="info-fila"><span>Educación</span><strong>{{ r.educacion }}</strong></div>
+
+        <p class="habilidades-titulo">HABILIDADES DETECTADAS EN EL DOCUMENTO</p>
+        <div class="chip-lista" *ngIf="r.habilidadesDetectadas.length; else sinHabilidades">
+          <span class="chip" *ngFor="let h of r.habilidadesDetectadas">{{ h }}</span>
+        </div>
+        <ng-template #sinHabilidades>
+          <p class="placeholder">No se reconoció ninguna habilidad del catálogo dentro del texto del documento.</p>
+        </ng-template>
+
+        <div class="aviso-box">
+          Nombre, profesión, experiencia y educación se muestran desde tu perfil ya registrado. Las habilidades
+          detectadas sí se obtuvieron leyendo el texto del documento cargado
+          <ng-container *ngIf="r.habilidadesAgregadasAlPerfil.length">
+            y se agregaron automáticamente a tu perfil: {{ r.habilidadesAgregadasAlPerfil.join(', ') }}.
+          </ng-container>
+          <ng-container *ngIf="!r.habilidadesAgregadasAlPerfil.length">.</ng-container>
+        </div>
+
+        <ng-container *ngIf="r.habilidadesNuevasEnCatalogo?.length">
+          <p class="habilidades-titulo">HABILIDADES NUEVAS DETECTADAS POR IA (NO ESTABAN EN EL CATÁLOGO)</p>
+          <div class="chip-lista">
+            <span class="chip chip-nuevo" *ngFor="let h of r.habilidadesNuevasEnCatalogo">{{ h }}</span>
+          </div>
+          <div class="aviso-box">
+            Estas habilidades no existían previamente en el catálogo de la plataforma: la IA las identificó en el
+            texto del currículum y se crearon automáticamente para poder asociarse a tu perfil.
+          </div>
+        </ng-container>
+
+        <div class="acciones-perfil">
+          <a class="btn btn-primario" routerLink="/vacantes">Consultar vacantes</a>
+          <a class="btn btn-secundario" routerLink="/perfil">Ver mi perfil</a>
+        </div>
+      </ng-container>
+    </section>
+  </div>
+</div>

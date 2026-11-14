@@ -1,0 +1,40 @@
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo"><strong>Blautech</strong> Guatemala</div>
+    <p class="auth-subtitle">
+      Tu contraseña fue reiniciada por un administrador. Antes de continuar, crea una contraseña nueva que solo tú conozcas.
+    </p>
+
+    <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()">
+      <div class="form-group">
+        <label for="contrasenaActual">Contraseña temporal (la que te dieron)</label>
+        <input id="contrasenaActual" type="password" formControlName="contrasenaActual" />
+        <span class="error-msg" *ngIf="form.get('contrasenaActual')?.touched && form.get('contrasenaActual')?.invalid">
+          Ingresa la contraseña temporal con la que iniciaste sesión.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="contrasenaNueva">Nueva contraseña</label>
+        <input id="contrasenaNueva" type="password" formControlName="contrasenaNueva" />
+        <span class="error-msg" *ngIf="form.get('contrasenaNueva')?.touched && form.get('contrasenaNueva')?.invalid">
+          Debe tener al menos 8 caracteres.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmarContrasena">Confirma la nueva contraseña</label>
+        <input id="confirmarContrasena" type="password" formControlName="confirmarContrasena" />
+        <span class="error-msg" *ngIf="form.get('confirmarContrasena')?.touched && form.get('confirmarContrasena')?.invalid">
+          Confirma la contraseña nueva.
+        </span>
+      </div>
+
+      <button class="btn btn-primario btn-full" type="submit" [disabled]="cargando">
+        {{ cargando ? 'Guardando...' : 'Guardar y continuar' }}
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo"><strong>Blautech</strong> Guatemala</div>
+    <p class="auth-subtitle">Crea tu cuenta de candidato</p>
+
+    <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+    <div class="alert-exito" *ngIf="exito">Cuenta creada correctamente. Redirigiendo a inicio de sesión...</div>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()" *ngIf="!exito">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" formControlName="nombre" />
+        </div>
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" formControlName="apellido" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="correo">Correo</label>
+        <input id="correo" type="email" formControlName="correo" />
+        <span class="error-msg" *ngIf="form.get('correo')?.touched && form.get('correo')?.invalid">
+          Ingresa un correo válido.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input id="contrasena" type="password" formControlName="contrasena" />
+        <span class="error-msg" *ngIf="form.get('contrasena')?.touched && form.get('contrasena')?.invalid">
+          Debe tener al menos 8 caracteres.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="telefono">Teléfono (opcional)</label>
+        <input id="telefono" formControlName="telefono" />
+      </div>
+
+      <button class="btn btn-primario btn-full" type="submit" [disabled]="cargando">
+        {{ cargando ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">¿Ya tienes cuenta? <a routerLink="/login">Inicia sesión</a></p>
+  </div>
+</div>

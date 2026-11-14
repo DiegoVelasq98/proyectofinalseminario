@@ -1,0 +1,76 @@
+<div class="page">
+  <h1>Vacantes disponibles</h1>
+
+  <div class="alert-exito" *ngIf="mensaje">{{ mensaje }}</div>
+  <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <p *ngIf="cargando">Cargando vacantes...</p>
+  <p *ngIf="!cargando && vacantes.length === 0">No hay vacantes activas en este momento.</p>
+
+  <div class="lista-vacantes">
+    <div class="card vacante-card" *ngFor="let v of vacantes">
+      <div class="vacante-header">
+        <h2>{{ v.titulo }}</h2>
+        <span class="badge badge-activa">{{ v.estado }}</span>
+      </div>
+      <p class="vacante-meta">{{ v.ubicacion || 'Sin ubicación' }} · {{ v.modalidad || 'No especificada' }}</p>
+      <p>{{ v.descripcion }}</p>
+      <p class="vacante-req" *ngIf="v.experienciaRequerida">Experiencia: {{ v.experienciaRequerida }}</p>
+      <p class="vacante-req" *ngIf="v.nivelAcademico">Nivel académico: {{ v.nivelAcademico }}</p>
+      <div class="vacante-acciones">
+        <button class="btn btn-secundario" (click)="verRequisitos(v)">Ver requisitos</button>
+        <button class="btn btn-primario" (click)="postularse(v.idVacante)" [disabled]="postulandoId === v.idVacante">
+          {{ postulandoId === v.idVacante ? 'Enviando...' : 'Postularme' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="vacanteSeleccionada" (click)="cerrarRequisitos()">
+    <div class="modal-caja modal-caja-lg" (click)="$event.stopPropagation()">
+      <button class="modal-cerrar" type="button" (click)="cerrarRequisitos()" aria-label="Cerrar">&times;</button>
+      <h3>{{ vacanteSeleccionada.titulo }}</h3>
+      <p class="subt" style="margin-top:0;">
+        {{ vacanteSeleccionada.areaNombre || 'Sin área' }} · {{ vacanteSeleccionada.modalidad || 'Modalidad no especificada' }}{{ vacanteSeleccionada.ubicacion ? ' · ' + vacanteSeleccionada.ubicacion : '' }}
+      </p>
+
+      <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+      <div class="alert-exito" *ngIf="mensaje">{{ mensaje }}</div>
+
+      <p>{{ vacanteSeleccionada.descripcion }}</p>
+
+      <div class="info-lista" style="margin: 1rem 0;">
+        <div class="fila" *ngIf="vacanteSeleccionada.experienciaRequerida">
+          <span class="k">Experiencia</span><span class="v">{{ vacanteSeleccionada.experienciaRequerida }}</span>
+        </div>
+        <div class="fila" *ngIf="vacanteSeleccionada.nivelAcademico">
+          <span class="k">Nivel académico</span><span class="v">{{ vacanteSeleccionada.nivelAcademico }}</span>
+        </div>
+        <div class="fila" *ngIf="vacanteSeleccionada.fechaCierre">
+          <span class="k">Fecha límite</span><span class="v">{{ vacanteSeleccionada.fechaCierre | date: 'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <p *ngIf="vacanteSeleccionada.conocimientosRequeridos">
+        <strong>Conocimientos requeridos:</strong> {{ vacanteSeleccionada.conocimientosRequeridos }}
+      </p>
+
+      <div *ngIf="vacanteSeleccionada.habilidadesRequeridas?.length">
+        <strong>Habilidades requeridas</strong>
+        <div style="margin-top: 0.5rem;">
+          <span class="chip" *ngFor="let h of vacanteSeleccionada.habilidadesRequeridas">
+            {{ h.nombreHabilidad }}{{ h.nivelRequerido ? ' · ' + h.nivelRequerido : '' }}{{ h.esObligatoria ? ' (obligatoria)' : ' (deseable)' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" (click)="cerrarRequisitos()">Cerrar</button>
+        <button class="btn btn-primario" (click)="postularse(vacanteSeleccionada.idVacante)"
+                [disabled]="postulandoId === vacanteSeleccionada.idVacante">
+          {{ postulandoId === vacanteSeleccionada.idVacante ? 'Enviando...' : 'Postularme' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

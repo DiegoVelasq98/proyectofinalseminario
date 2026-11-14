@@ -1,0 +1,131 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <h1>Análisis de candidatos</h1>
+
+  <div class="toolbar-row">
+    <label style="font-size:0.85rem; color: var(--texto-suave);">Vacante analizada</label>
+    <select
+      class="search-input"
+      style="flex: 0 0 320px;"
+      [ngModel]="idVacanteSeleccionada"
+      (ngModelChange)="cambiarVacante($event)"
+    >
+      <option *ngFor="let v of vacantes" [value]="v.idVacante">{{ v.titulo }}</option>
+    </select>
+  </div>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && filas.length === 0">Esta vacante todavía no tiene candidatos postulados.</p>
+
+  <div class="grid-2" *ngIf="!cargando && filas.length" style="align-items: start;">
+    <div>
+      <h3 style="margin-bottom: 0.8rem;">Clasificación por compatibilidad</h3>
+
+      <button
+        class="ranking-item"
+        *ngFor="let f of filas; let i = index"
+        [class.seleccionado]="seleccionada === f"
+        (click)="seleccionar(f)"
+      >
+        <div class="ranking-top">
+          <span class="ranking-nombre">{{ i + 1 }}. {{ f.postulacion.nombreCandidato }}</span>
+          <span class="ranking-pct" [class]="f.analisis ? claseCompatibilidad(f.analisis.porcentajeCoincidencia) : ''">
+            {{ f.analisis ? f.analisis.porcentajeCoincidencia + '%' : 'Sin generar' }}
+          </span>
+        </div>
+        <div class="compat-bar" *ngIf="f.analisis">
+          <span
+            [class]="claseCompatibilidad(f.analisis.porcentajeCoincidencia)"
+            [style.width.%]="f.analisis.porcentajeCoincidencia"
+          ></span>
+        </div>
+        <p class="ranking-sub" *ngIf="f.analisis">
+          {{ f.analisis.clasificacion === 'ALTA' ? 'Compatibilidad Alta' : f.analisis.clasificacion === 'MEDIA' ? 'Compatibilidad Media' : 'Compatibilidad Baja' }}
+          · {{ aniosDe(f) }} años · {{ coincidencias(f) }} coincidencias
+        </p>
+        <p class="ranking-sub" *ngIf="!f.analisis">Todavía no se ha generado el análisis para este candidato.</p>
+      </button>
+    </div>
+
+    <div class="card" *ngIf="seleccionada as s">
+      <div class="detalle-header">
+        <div>
+          <strong style="font-size: 1.05rem;">{{ s.postulacion.nombreCandidato }}</strong>
+          <p class="fecha" style="margin: 2px 0 0;">{{ aniosDe(s) }} años de experiencia</p>
+        </div>
+        <div style="text-align:right;">
+          <p class="ranking-pct" *ngIf="s.analisis" [class]="claseCompatibilidad(s.analisis.porcentajeCoincidencia)" style="margin:0;">
+            {{ s.analisis.porcentajeCoincidencia }}%
+          </p>
+          <button type="button" class="btn btn-secundario" style="margin-top:4px;" (click)="nav.ir('/candidatos/detalle', { id: s.postulacion.idCandidato })">Ver candidato</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primario" style="margin: 0.8rem 0;" [disabled]="ejecutando" (click)="ejecutarAnalisis(s)">
+        {{ ejecutando ? 'Analizando...' : (s.analisis ? 'Ejecutar análisis nuevamente' : 'Generar análisis') }}
+      </button>
+
+      <ng-container *ngIf="s.analisis as a">
+        <h3 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave);">
+          Requisitos de la vacante vs. perfil del candidato
+        </h3>
+        <table>
+          <thead><tr><th>Requisito</th><th>Vacante</th><th>Candidato</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let d of a.detalles">
+              <td>{{ d.criterio }}</td>
+              <td>{{ d.valorEsperado || 'Cualquier nivel' }}</td>
+              <td>{{ d.valorCandidato }}</td>
+              <td>
+                <span [class]="claseResultado(d.porcentajeCoincidencia)">
+                  {{ textoResultado(d.porcentajeCoincidencia) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 1rem;">
+          <h3 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave); display:inline-block; margin-right: 1.5rem;">
+            Habilidades coincidentes
+          </h3>
+          <div>
+            <span class="chip" *ngFor="let d of habilidadesCoincidentes(a.detalles)">{{ d.criterio }}</span>
+            <span class="vacia" *ngIf="coincidencias(s) === 0">Ninguna</span>
+          </div>
+          <h3 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave); margin-top: 0.8rem;" *ngIf="habilidadesParciales(a.detalles).length">
+            Cumple parcialmente
+          </h3>
+          <div *ngIf="habilidadesParciales(a.detalles).length">
+            <span class="chip chip-parcial" *ngFor="let d of habilidadesParciales(a.detalles)">{{ d.criterio }}</span>
+          </div>
+
+          <h3 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave); margin-top: 0.8rem;">
+            Habilidades faltantes
+          </h3>
+          <div>
+            <span class="chip chip-faltante" *ngFor="let d of habilidadesFaltantes(a.detalles)">{{ d.criterio }}</span>
+            <span class="vacia" *ngIf="habilidadesFaltantes(a.detalles).length === 0">Ninguna</span>
+          </div>
+
+          <ng-container *ngIf="a.habilidadesExtra?.length">
+            <h3 style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--texto-suave); margin-top: 0.8rem;">
+              Habilidades adicionales del candidato (no solicitadas por la vacante)
+            </h3>
+            <div>
+              <span class="chip chip-extra" *ngFor="let h of a.habilidadesExtra">{{ h.nombre }} ({{ h.nivel }})</span>
+            </div>
+          </ng-container>
+        </div>
+
+        <p style="margin-top: 1rem;"><strong>Resumen del análisis:</strong> {{ a.resumen }}</p>
+
+        <div class="aviso-box">
+          El resultado generado funciona como apoyo para Recursos Humanos y no representa una decisión automática de contratación.
+        </div>
+      </ng-container>
+
+      <p class="vacia" *ngIf="!s.analisis">Genera el análisis para ver el detalle de compatibilidad de este candidato.</p>
+    </div>
+  </div>
+</div>

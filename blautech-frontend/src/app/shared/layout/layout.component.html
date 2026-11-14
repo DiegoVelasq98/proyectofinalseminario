@@ -1,0 +1,48 @@
+<div class="shell" *ngIf="auth.usuarioActual() as u">
+  <aside class="sidebar">
+    <div class="marca">
+      <div class="marca-icono"></div>
+      <span>Blautech</span>
+    </div>
+
+    <nav class="nav">
+      <ng-container [ngSwitch]="u.rol">
+        <ng-container *ngSwitchCase="'CANDIDATO'">
+          <a routerLink="/inicio" routerLinkActive="activo">Inicio</a>
+          <a routerLink="/perfil" routerLinkActive="activo">Mi perfil</a>
+          <a routerLink="/vacantes" routerLinkActive="activo">Vacantes</a>
+          <a routerLink="/postulaciones" routerLinkActive="activo">Mis postulaciones</a>
+          <a routerLink="/curriculum" routerLinkActive="activo">Mi currículum</a>
+        </ng-container>
+        <ng-container *ngSwitchCase="'RRHH'">
+          <a routerLink="/inicio" routerLinkActive="activo">Inicio</a>
+          <a routerLink="/vacantes" routerLinkActive="activo">Vacantes</a>
+          <a routerLink="/candidatos" routerLinkActive="activo">Candidatos</a>
+          <a routerLink="/postulaciones" routerLinkActive="activo">Postulaciones</a>
+          <a routerLink="/analisis" routerLinkActive="activo">Análisis de candidatos</a>
+          <a routerLink="/areas" routerLinkActive="activo">Áreas</a>
+        </ng-container>
+        <ng-container *ngSwitchCase="'ADMIN'">
+          <a routerLink="/usuarios" routerLinkActive="activo">Usuarios y accesos</a>
+        </ng-container>
+      </ng-container>
+    </nav>
+
+    <div class="sesion">
+      <p class="sesion-etiqueta">SESIÓN ACTIVA</p>
+      <p class="sesion-nombre">{{ u.nombre }}</p>
+      <p class="sesion-rol">{{ nombreRol(u.rol) }}</p>
+      <button class="btn-salir" (click)="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <div class="area">
+    <header class="topbar">
+      <div class="iniciales">{{ iniciales(u.nombre) }}</div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

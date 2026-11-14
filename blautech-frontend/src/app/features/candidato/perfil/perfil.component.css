@@ -1,0 +1,73 @@
+ul { padding-left: 1.1rem; margin-top: 0.6rem; }
+li { margin-bottom: 0.6rem; font-size: 0.92rem; }
+.item-titulo { font-weight: 500; }
+.item-fechas { color: var(--texto-suave); font-size: 0.82rem; margin-top: 0.1rem; }
+
+.check-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--etiqueta);
+  margin: -0.3rem 0 0.8rem;
+  cursor: pointer;
+}
+.check-inline input { width: 14px; height: 14px; accent-color: var(--azul-primario); }
+
+.perfil-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .perfil-layout { grid-template-columns: 1fr; } }
+
+.ayuda-tag { font-size: 0.8rem; color: var(--texto-suave); margin: -0.3rem 0 0.6rem; }
+.chip-lista { margin-bottom: 0.6rem; }
+.chip-quitar { border: none; background: transparent; color: inherit; cursor: pointer; margin-left: 4px; font-size: 0.9rem; line-height: 1; opacity: 0.7; padding: 0; }
+.chip-quitar:hover { opacity: 1; }
+
+.acciones-perfil { display: flex; gap: 0.6rem; margin-top: 1.2rem; align-items: center; }
+.acciones-perfil a.btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+.estado-perfil { position: sticky; top: 84px; }
+.estado-perfil-titulo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--texto-suave); margin: 0; }
+.estado-perfil-pct { font-size: 2.1rem; font-weight: 700; margin: 0.2rem 0 0.8rem; }
+.estado-perfil-barra { height: 6px; background: var(--fondo-fila); border-radius: 3px; overflow: hidden; margin-bottom: 1.2rem; }
+.estado-perfil-relleno { height: 100%; background: var(--azul-primario); border-radius: 3px; transition: width 0.2s ease; }
+.estado-perfil-lista { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.estado-perfil-lista li { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; margin: 0; }
+.estado-perfil-lista .punto { width: 6px; height: 6px; border-radius: 50%; background: var(--borde-input); flex-shrink: 0; }
+.estado-perfil-lista .punto.completo { background: var(--exito); }
+.estado-perfil-lista .label { flex: 1; color: var(--etiqueta); }
+.estado-perfil-lista .estado-texto { color: var(--texto-suave); font-size: 0.78rem; }
+.estado-perfil-lista .estado-texto.completo { color: var(--exito); }
+
+/* .form-group (global) pone flex-direction: column -- sin esta línea el
+   input/select/botón de abajo quedaban apilados en vez de en fila. */
+.tag-input-grupo { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.tag-input-grupo input { flex: 1; min-width: 180px; }
+.tag-input-grupo select { flex: none; }
+.chip-nivel { opacity: 0.75; font-size: 0.85em; margin-left: 2px; }
+
+/* Chip de habilidad con su propio select de nivel embebido (en vez de
+   solo texto): así se puede fijar/cambiar el nivel sin borrar y volver
+   a agregar la habilidad -- sobre todo para las que detecta el
+   currículum, que llegan sin nivel. */
+.chip-habilidad {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-right: 0.4rem;
+}
+.chip-habilidad.chip-sin-nivel {
+  background: var(--alerta-fondo);
+  color: var(--alerta);
+}
+.chip-nivel-select {
+  font-size: 0.72rem;
+  font-family: inherit;
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--borde-input);
+  background: #fff;
+  color: var(--texto);
+}
+.chip-habilidad.chip-sin-nivel .chip-nivel-select { border-color: var(--alerta); }
+.item-acciones { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
+.item-acciones .btn { padding: 0.25rem 0.6rem; font-size: 0.78rem; }

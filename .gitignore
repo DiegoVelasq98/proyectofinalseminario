@@ -1,0 +1,22 @@
+.env
+mysql-init/*.sql
+
+# Carpeta de salidas sueltas de una sesión anterior, no es parte del proyecto.
+ms-reclutamiento/
+
+# Carpeta del git anterior, roto, ya no se usa.
+.git-viejo-roto/
+
+# Variables de entorno para pruebas locales (RRHH en PC), nunca al repo.
+.env.local
+
+docs/diagramas/
+reclutamiento/seed_usuarios_prueba.sql
+blautech-frontend/cypress/fixtures/usuarios.json
+# Kubernetes: este ConfigMap se genera con k8s/generar-init-configmap.sh e
+# incluye cuentas de ejemplo con contrasenas cifradas; nunca al repo.
+k8s/06-mysql-init-configmap.yaml
+database/usuarios.local.sql
+
+# Secret real del cluster
+k8s/02-secret.local.yaml

@@ -1,0 +1,22 @@
+# Ingress con HTTPS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  namespace: dvelasquezp4
+spec:
+  tls:
+    - hosts:
+        - dvelasquezp4.35.188.164.62.nip.io
+      secretName: blautech-tls
+  rules:
+    - host: dvelasquezp4.35.188.164.62.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

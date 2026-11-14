@@ -1,0 +1,3 @@
+.volver { display: inline-block; margin-bottom: 0.8rem; font-size: 0.9rem; }
+.acciones-postulante { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
+.analisis-box { background: var(--fondo-fila); border-radius: 8px; padding: 0.8rem 1rem; }

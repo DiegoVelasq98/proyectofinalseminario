@@ -1,0 +1,2 @@
+td { vertical-align: middle; }
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }

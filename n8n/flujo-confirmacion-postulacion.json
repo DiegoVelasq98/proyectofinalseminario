@@ -1,0 +1,87 @@
+{
+  "name": "Blautech - Confirmacion de postulacion al candidato",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "postulacion-creada",
+        "options": {}
+      },
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "Postulacion creada (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "b1a7e000-0000-4000-8000-000000000001"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body || {};\nconst esc = (s) => String(s ?? '')\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\nreturn [{ json: {\n  correo: b.candidatoCorreo || '',\n  nombre: esc(b.candidatoNombre),\n  vacante: esc(b.vacanteTitulo),\n  vacanteTexto: String(b.vacanteTitulo ?? ''),\n  fecha: esc(b.fechaPostulacion),\n}}];"
+      },
+      "id": "44444444-4444-4444-8444-444444444444",
+      "name": "Preparar datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "TU_CORREO@gmail.com",
+        "toEmail": "={{ $json.correo }}",
+        "subject": "=Recibimos tu postulación a {{ $json.vacanteTexto }}",
+        "emailFormat": "html",
+        "html": "=<!DOCTYPE html>\n<html lang=\"es\">\n<body style=\"margin:0;padding:0;background:#f7f9fb;\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f7f9fb;padding:24px 12px;\">\n <tr><td align=\"center\">\n  <table role=\"presentation\" width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:560px;width:100%;background:#ffffff;border:1px solid #e4e7ec;border-radius:10px;overflow:hidden;font-family:Segoe UI,Helvetica,Arial,sans-serif;\">\n   <tr><td style=\"background:#16283c;padding:22px 28px;\">\n     <span style=\"color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;\">Blautech</span>\n     <span style=\"color:#8fb4d6;font-size:13px;margin-left:8px;\">Reclutamiento</span>\n   </td></tr>\n   <tr><td style=\"padding:30px 28px 8px 28px;\">\n     <p style=\"margin:0 0 6px 0;font-size:13px;color:#2f7d5d;font-weight:600;\">&#10003; POSTULACI&Oacute;N RECIBIDA</p>\n     <h1 style=\"margin:0 0 16px 0;font-size:22px;color:#1a1f27;\">Hola, {{ $json.nombre }}</h1>\n     <p style=\"margin:0 0 18px 0;font-size:15px;line-height:1.6;color:#344054;\">\n       Recibimos tu postulaci&oacute;n correctamente. Estos son los datos de tu solicitud:\n     </p>\n   </td></tr>\n   <tr><td style=\"padding:0 28px;\">\n     <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#eef2f7;border-radius:8px;\">\n       <tr><td style=\"padding:16px 18px;\">\n         <p style=\"margin:0;font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:0.6px;\">Vacante</p>\n         <p style=\"margin:2px 0 12px 0;font-size:17px;font-weight:600;color:#16283c;\">{{ $json.vacante }}</p>\n         <p style=\"margin:0;font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:0.6px;\">Fecha de postulaci&oacute;n</p>\n         <p style=\"margin:2px 0 0 0;font-size:15px;color:#344054;\">{{ $json.fecha }}</p>\n       </td></tr>\n     </table>\n   </td></tr>\n   <tr><td style=\"padding:22px 28px 8px 28px;\">\n     <p style=\"margin:0;font-size:15px;line-height:1.6;color:#344054;\">\n       El equipo de Recursos Humanos revisar&aacute; tu perfil y te daremos seguimiento por este medio.\n       Mientras tanto, puedes consultar el estado de tu postulaci&oacute;n en la plataforma.\n     </p>\n   </td></tr>\n   <tr><td align=\"center\" style=\"padding:20px 28px 30px 28px;\">\n     <a href=\"https://blautech.online\" style=\"display:inline-block;background:#2a4d74;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:12px 26px;border-radius:8px;\">Ver mis postulaciones</a>\n   </td></tr>\n   <tr><td style=\"background:#fafbfc;border-top:1px solid #e4e7ec;padding:16px 28px;\">\n     <p style=\"margin:0;font-size:12px;line-height:1.5;color:#98a2b3;\">\n       Este es un mensaje autom&aacute;tico, por favor no respondas a este correo.<br>\n       Blautech Guatemala &middot; Sistema de reclutamiento\n     </p>\n   </td></tr>\n  </table>\n </td></tr>\n</table>\n</body>\n</html>",
+        "options": {}
+      },
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "Correo al candidato",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        200
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "",
+          "name": "SMTP Blautech"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Postulacion creada (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Preparar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar datos": {
+      "main": [
+        [
+          {
+            "node": "Correo al candidato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

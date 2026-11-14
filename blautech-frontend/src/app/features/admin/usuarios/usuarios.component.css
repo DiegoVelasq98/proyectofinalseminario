@@ -1,0 +1,20 @@
+.subt { color: var(--texto-suave); font-size: 0.9rem; margin-top: -0.4rem; }
+
+td .btn { margin-right: 0.4rem; }
+td .btn:last-child { margin-right: 0; }
+
+.modal-contrasena {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--fondo-fila);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-sm);
+  padding: 0.7rem 0.9rem;
+  margin: 0.8rem 0;
+  text-align: center;
+  color: var(--azul-primario);
+  user-select: all;
+}
+

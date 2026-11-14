@@ -1,0 +1,94 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <h1>Panel general</h1>
+
+  <p *ngIf="cargando">Cargando...</p>
+
+  <ng-container *ngIf="!cargando">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <p class="kpi-etiqueta">Vacantes activas</p>
+        <p class="kpi-valor">{{ vacantesActivas }}</p>
+        <p class="kpi-detalle">Publicadas y recibiendo postulaciones</p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-etiqueta">Candidatos registrados</p>
+        <p class="kpi-valor">{{ candidatosRegistrados }}</p>
+        <p class="kpi-detalle">Con perfil creado en la plataforma</p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-etiqueta">Postulaciones recibidas</p>
+        <p class="kpi-valor">{{ postulacionesRecibidas }}</p>
+        <p class="kpi-detalle">Total en el proceso actual</p>
+      </div>
+      <div class="kpi-card">
+        <p class="kpi-etiqueta">Pendientes de revisión</p>
+        <p class="kpi-valor">{{ pendientesRevision }}</p>
+        <p class="kpi-detalle">Requieren atención de Recursos Humanos</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="header-row" style="margin-bottom: 0.8rem;">
+          <h3 style="margin:0">Postulaciones por vacante</h3>
+          <a class="btn btn-secundario" routerLink="/vacantes">Ver vacantes</a>
+        </div>
+        <p class="vacia" *ngIf="filasPorVacante.length === 0">Todavía no hay vacantes publicadas.</p>
+        <table *ngIf="filasPorVacante.length">
+          <thead><tr><th>Vacante</th><th>Postulaciones</th><th>Pendientes</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let f of filasPorVacante">
+              <td>{{ f.titulo }}</td>
+              <td>{{ f.total }}</td>
+              <td>{{ f.pendientes }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.8rem;">Actividad reciente</h3>
+        <p class="vacia" *ngIf="actividadReciente.length === 0">Todavía no hay postulaciones registradas.</p>
+        <div class="info-lista">
+          <div class="fila" *ngFor="let p of actividadReciente">
+            <span class="k">{{ p.nombreCandidato }} se postuló a {{ p.tituloVacante }}</span>
+            <span class="v">{{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="header-row" style="margin-bottom: 0.8rem;">
+          <h3 style="margin:0">Embudo de conversión</h3>
+          <span class="fecha" *ngIf="tiempoPromedioContratacion !== null">
+            Promedio hasta contratar: {{ tiempoPromedioContratacion | number: '1.0-1' }} días
+          </span>
+        </div>
+        <p class="vacia" *ngIf="postulacionesRecibidas === 0">Todavía no hay postulaciones registradas.</p>
+        <div class="embudo" *ngIf="postulacionesRecibidas > 0">
+          <div class="embudo-fila" *ngFor="let e of embudo">
+            <span class="embudo-etiqueta">{{ e.etiqueta }}</span>
+            <span class="embudo-bar"><span [style.width.%]="e.porcentajeAncho"></span></span>
+            <span class="embudo-cantidad">{{ e.cantidad }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-bottom: 0.8rem;">Postulaciones estancadas</h3>
+        <p class="vacia" *ngIf="postulacionesEstancadas.length === 0">
+          Ninguna postulación en proceso lleva más de 7 días sin moverse. 👍
+        </p>
+        <div class="info-lista" *ngIf="postulacionesEstancadas.length">
+          <div class="fila alerta-estancada" *ngFor="let p of postulacionesEstancadas">
+            <span class="k">{{ p.nombreCandidato }} · {{ p.tituloVacante }}</span>
+            <span class="v">{{ p.dias }} días en "{{ p.estado }}"</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

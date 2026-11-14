@@ -1,0 +1,78 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <h1>Áreas</h1>
+
+  <div class="card" style="margin-bottom: 1.2rem;">
+    <p class="kpi-etiqueta">Agregar área nueva</p>
+    <div style="display:flex; gap:0.6rem; margin-top:0.5rem;">
+      <input
+        class="search-input"
+        style="flex:1;"
+        type="text"
+        placeholder="Ej. Marketing"
+        [(ngModel)]="nombreNuevaArea"
+        (keyup.enter)="crear()"
+      />
+      <button class="btn btn-primario" [disabled]="creando || !nombreNuevaArea.trim()" (click)="crear()">
+        {{ creando ? 'Agregando...' : '+ Agregar' }}
+      </button>
+    </div>
+    <p class="error-msg" *ngIf="errorMsg" style="margin-top:0.5rem;">{{ errorMsg }}</p>
+  </div>
+
+  <div class="toolbar-row">
+    <div class="tabs">
+      <button class="tab" [class.activo]="filtro === 'ACTIVAS'" (click)="setFiltro('ACTIVAS')">Activas</button>
+      <button class="tab" [class.activo]="filtro === 'TODAS'" (click)="setFiltro('TODAS')">Todas</button>
+    </div>
+  </div>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && filtradas.length === 0">No hay áreas que coincidan con este filtro.</p>
+
+  <table *ngIf="!cargando && filtradas.length">
+    <thead>
+      <tr><th>Nombre</th><th>Estado</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let a of filtradas">
+        <td>
+          <span *ngIf="idEnEdicion !== a.idArea">{{ a.nombre }}</span>
+          <input
+            *ngIf="idEnEdicion === a.idArea"
+            class="search-input"
+            type="text"
+            [(ngModel)]="nombreEdicion"
+            (keyup.enter)="guardarEdicion(a)"
+          />
+        </td>
+        <td><span [class]="claseBadge(a.estado)">{{ a.estado ?? 'ACTIVO' }}</span></td>
+        <td class="acciones">
+          <ng-container *ngIf="idEnEdicion !== a.idArea">
+            <button class="btn btn-secundario" [disabled]="guardandoId === a.idArea" (click)="editar(a)">Editar</button>
+            <button
+              class="btn btn-peligro"
+              *ngIf="(a.estado ?? 'ACTIVO') === 'ACTIVO'"
+              [disabled]="guardandoId === a.idArea"
+              (click)="desactivar(a)"
+            >
+              Desactivar
+            </button>
+            <button
+              class="btn btn-exito"
+              *ngIf="(a.estado ?? 'ACTIVO') === 'INACTIVO'"
+              [disabled]="guardandoId === a.idArea"
+              (click)="activar(a)"
+            >
+              Activar
+            </button>
+          </ng-container>
+          <ng-container *ngIf="idEnEdicion === a.idArea">
+            <button class="btn btn-primario" [disabled]="guardandoId === a.idArea" (click)="guardarEdicion(a)">Guardar</button>
+            <button class="btn btn-secundario" [disabled]="guardandoId === a.idArea" (click)="cancelarEdicion()">Cancelar</button>
+          </ng-container>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

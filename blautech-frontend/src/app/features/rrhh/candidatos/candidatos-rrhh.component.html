@@ -1,0 +1,51 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <h1>Candidatos</h1>
+
+  <div class="toolbar-row">
+    <div class="tabs">
+      <button class="tab" [class.activo]="filtro === 'ACTIVOS'" (click)="setFiltro('ACTIVOS')">Con proceso activo</button>
+      <button class="tab" [class.activo]="filtro === 'TODOS'" (click)="setFiltro('TODOS')">Todos</button>
+    </div>
+    <input class="search-input" type="text" placeholder="Buscar candidato, formación o habilidad" [(ngModel)]="busqueda" />
+    <button class="btn btn-secundario" (click)="exportarCsv()">Exportar CSV</button>
+  </div>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && filtrados.length === 0 && filtro === 'ACTIVOS'">
+    No hay candidatos con un proceso activo. Si buscas a alguien ya contratado o rechazado, cambia el filtro a "Todos".
+  </p>
+  <p class="vacia" *ngIf="!cargando && filtrados.length === 0 && filtro === 'TODOS'">No hay candidatos que coincidan con la búsqueda.</p>
+
+  <div class="card-grid" *ngIf="!cargando && filtrados.length">
+    <div class="card" *ngFor="let c of filtrados">
+      <div style="display:flex; gap:0.7rem; align-items:center; margin-bottom: 0.7rem;">
+        <div class="avatar-circle">{{ siglas(c) }}</div>
+        <div>
+          <strong>{{ c.nombre }} {{ c.apellido }}</strong>
+          <div class="fecha">{{ formacion(c) }}{{ anios(c) ? ' · ' + anios(c) + ' años' : '' }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="c.habilidades.length">
+        <span class="chip" *ngFor="let h of c.habilidades.slice(0, 5)">{{ nombreHabilidad(h.idHabilidad) }}</span>
+      </div>
+      <p class="vacia" style="padding: 0.2rem 0;" *ngIf="!c.habilidades.length">Sin habilidades registradas.</p>
+
+      <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 0.8rem;">
+        <span class="fecha">{{ postulaciones(c).length }} postulación(es)</span>
+        <button
+          type="button"
+          class="btn btn-secundario"
+          *ngIf="postulacionMasReciente(c) as p; else sinPostulacion"
+          (click)="nav.ir('/postulaciones/detalle', { id: p.idPostulacion, vacante: p.idVacante })"
+        >
+          Ver detalle
+        </button>
+        <ng-template #sinPostulacion>
+          <button type="button" class="btn btn-secundario" (click)="nav.ir('/candidatos/detalle', { id: c.idCandidato })">Ver detalle</button>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

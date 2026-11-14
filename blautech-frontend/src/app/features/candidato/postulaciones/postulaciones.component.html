@@ -1,0 +1,63 @@
+<div class="page">
+  <h1>Mis postulaciones</h1>
+  <p *ngIf="cargando">Cargando...</p>
+  <p *ngIf="!cargando && postulaciones.length === 0">Todavía no te has postulado a ninguna vacante.</p>
+
+  <table *ngIf="postulaciones.length">
+    <thead>
+      <tr><th>Vacante</th><th>Fecha</th><th>Estado</th><th>Análisis</th><th></th></tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let p of postulaciones">
+        <tr>
+          <td>{{ p.tituloVacante }}</td>
+          <td>{{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</td>
+          <td><span [class]="claseBadge(p.estado)">{{ p.estado }}</span></td>
+          <td>
+            <button class="btn btn-secundario" (click)="verAnalisis(p.idPostulacion)"
+                    *ngIf="!analisisVisible[p.idPostulacion]">
+              Ver análisis
+            </button>
+            <span *ngIf="analisisVisible[p.idPostulacion] === 'sin-datos'">Aún no disponible</span>
+            <span *ngIf="analisisVisible[p.idPostulacion] && analisisVisible[p.idPostulacion] !== 'sin-datos'">
+              {{ $any(analisisVisible[p.idPostulacion]).porcentajeCoincidencia }}% —
+              {{ $any(analisisVisible[p.idPostulacion]).clasificacion }}
+            </span>
+          </td>
+          <td class="acciones">
+            <button class="btn btn-secundario" (click)="verHistorial(p.idPostulacion)">
+              {{ historialVisible[p.idPostulacion] ? 'Ocultar historial' : 'Ver historial' }}
+            </button>
+            <button
+              class="btn btn-peligro"
+              *ngIf="puedeRetirar(p)"
+              [disabled]="retirando === p.idPostulacion"
+              (click)="retirar(p)"
+            >
+              {{ retirando === p.idPostulacion ? 'Retirando...' : 'Retirar' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="historialVisible[p.idPostulacion]">
+          <td colspan="5" style="background: var(--neutro-fondo);">
+            <p class="error-msg" *ngIf="errorRetirar[p.idPostulacion]">{{ errorRetirar[p.idPostulacion] }}</p>
+            <p class="vacia" *ngIf="historialVisible[p.idPostulacion] === 'sin-datos'">No se pudo cargar el historial.</p>
+            <table *ngIf="historialVisible[p.idPostulacion] !== 'sin-datos'" style="margin: 0;">
+              <thead>
+                <tr><th>Fecha</th><th>De</th><th>A</th><th>Observación</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let h of $any(historialVisible[p.idPostulacion])">
+                  <td>{{ h.fechaCambio | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ h.estadoAnterior || '—' }}</td>
+                  <td><span [class]="claseBadge(h.estadoNuevo)">{{ h.estadoNuevo }}</span></td>
+                  <td>{{ h.observacion || '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
+</div>

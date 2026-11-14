@@ -1,0 +1,104 @@
+<div class="page" *ngIf="!cargando && vacante as v">
+  <p class="breadcrumb"><a routerLink="/vacantes">Vacantes</a></p>
+  <div class="detalle-header">
+    <div>
+      <h1>{{ v.titulo }}</h1>
+      <p class="subt" style="margin-top:0">
+        {{ v.modalidad || 'Sin modalidad' }}{{ v.ubicacion ? ' · ' + v.ubicacion : '' }}
+      </p>
+    </div>
+    <div class="acciones">
+      <span [class]="claseBadge(v.estado)">{{ v.estado }}</span>
+      <button class="btn btn-primario" *ngIf="v.estado === 'BORRADOR'" [disabled]="publicando" (click)="publicar()">
+        {{ publicando ? 'Publicando...' : 'Publicar vacante' }}
+      </button>
+      <button class="btn btn-primario" *ngIf="v.estado !== 'BORRADOR'" (click)="irAnalisis()">Análisis de candidatos</button>
+    </div>
+  </div>
+
+  <div class="tab-strip">
+    <button [class.activo]="tab === 'info'" (click)="setTab('info')">Información</button>
+    <button [class.activo]="tab === 'requisitos'" (click)="setTab('requisitos')">Requisitos</button>
+    <button [class.activo]="tab === 'candidatos'" (click)="setTab('candidatos')">Candidatos ({{ postulaciones.length }})</button>
+  </div>
+
+  <div class="grid-2" *ngIf="tab === 'info'">
+    <div class="card">
+      <h3>Descripción del puesto</h3>
+      <p>{{ v.descripcion || 'Sin descripción registrada.' }}</p>
+      <h3 style="margin-top:1.2rem;">Tecnologias</h3>
+      <p>{{ v.conocimientosRequeridos || 'Sin conocimientos adicionales registrados.' }}</p>
+    </div>
+    <div class="card">
+      <h3>Datos generales</h3>
+      <div class="info-lista">
+        <div class="fila"><span class="k">Área</span><span class="v">{{ v.areaNombre || '—' }}</span></div>
+        <div class="fila"><span class="k">Modalidad</span><span class="v">{{ v.modalidad || '—' }}</span></div>
+        <div class="fila"><span class="k">Ubicación</span><span class="v">{{ v.ubicacion || '—' }}</span></div>
+        <div class="fila"><span class="k">Experiencia</span><span class="v">{{ v.experienciaRequerida || '—' }}</span></div>
+        <div class="fila"><span class="k">Nivel académico</span><span class="v">{{ v.nivelAcademico || '—' }}</span></div>
+        <div class="fila"><span class="k">Publicación</span><span class="v">{{ v.fechaPublicacion | date: 'dd/MM/yyyy' }}</span></div>
+        <div class="fila"><span class="k">Fecha límite</span><span class="v">{{ v.fechaCierre ? (v.fechaCierre | date: 'dd/MM/yyyy') : '—' }}</span></div>
+        <div class="fila"><span class="k">Creada por</span><span class="v">{{ v.creadoPor }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="tab === 'info'" style="margin-top: 1rem;">
+    <h3 style="margin-bottom: 0.6rem;">Responsable del proceso</h3>
+    <p class="fecha" style="margin-top:0">
+      Quién lleva esta vacante dentro de RRHH -- útil cuando hay varios reclutadores.
+    </p>
+    <div class="toolbar-row" style="margin-top: 0.6rem;">
+      <select
+        class="search-input"
+        style="flex: 0 0 280px;"
+        [ngModel]="idResponsableSeleccionado"
+        (ngModelChange)="cambiarResponsableSeleccionado($event)"
+      >
+        <option *ngFor="let r of responsables" [value]="r.idUsuario">{{ r.nombreCompleto }}</option>
+      </select>
+      <button
+        class="btn btn-secundario"
+        type="button"
+        [disabled]="guardandoResponsable || idResponsableSeleccionado === v.idUsuarioCreador"
+        (click)="guardarResponsable()"
+      >
+        {{ guardandoResponsable ? 'Guardando...' : 'Asignar' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="tab === 'requisitos'">
+    <p class="vacia" *ngIf="!v.habilidadesRequeridas?.length">Esta vacante todavía no tiene habilidades requeridas registradas.</p>
+    <table *ngIf="v.habilidadesRequeridas?.length">
+      <thead><tr><th>Requisito</th><th>Tipo</th><th>Nivel esperado</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let h of v.habilidadesRequeridas">
+          <td>{{ nombreHabilidad(h.idHabilidad) }}</td>
+          <td>{{ h.esObligatoria ? 'Requerido' : 'Deseable' }}</td>
+          <td>{{ h.nivelRequerido || 'Cualquier nivel' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" *ngIf="tab === 'candidatos'">
+    <p class="vacia" *ngIf="postulaciones.length === 0">Todavía no hay candidatos postulados a esta vacante.</p>
+    <table *ngIf="postulaciones.length">
+      <thead><tr><th>Candidato</th><th>Postulación</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        <tr *ngFor="let p of postulaciones">
+          <td>{{ p.nombreCandidato }}</td>
+          <td>{{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</td>
+          <td><span [class]="claseBadge(p.estado)">{{ p.estado }}</span></td>
+          <td>
+            <button type="button" class="btn btn-secundario" (click)="nav.ir('/postulaciones/detalle', { id: p.idPostulacion, vacante: idVacante })">Abrir</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p *ngIf="cargando">Cargando...</p>

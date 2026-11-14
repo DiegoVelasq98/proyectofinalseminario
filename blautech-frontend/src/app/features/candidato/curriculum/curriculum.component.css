@@ -1,0 +1,36 @@
+.cv-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; align-items: start; }
+@media (max-width: 900px) { .cv-layout { grid-template-columns: 1fr; } }
+
+.ayuda { font-size: 0.85rem; color: var(--texto-suave); margin: -0.4rem 0 1rem; }
+
+.dropzone { border: 1px dashed var(--borde-input); border-radius: var(--radio); padding: 1.4rem; text-align: center; background: var(--fondo-fila); }
+.dropzone.arrastrando { border-color: var(--azul-primario); background: var(--azul-claro); }
+.nombre-archivo { font-weight: 600; margin: 0 0 0.3rem; }
+.subtexto { font-size: 0.83rem; color: var(--texto-suave); margin: 0 0 1rem; }
+.subtexto.ok { color: var(--exito); }
+.dropzone-botones { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+.dropzone-botones label.btn { cursor: pointer; }
+
+.pasos-lista { list-style: none; padding: 0; margin: 1.2rem 0 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.pasos-lista li { display: flex; align-items: center; gap: 0.7rem; font-size: 0.85rem; border-top: 1px solid var(--borde); padding-top: 0.7rem; }
+.pasos-lista li:first-child { border-top: none; padding-top: 0; }
+.paso-numero { width: 22px; height: 22px; border-radius: 50%; background: var(--neutro-fondo); color: var(--texto-suave); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+.paso-numero.completado { background: var(--exito); color: #fff; }
+.paso-numero.error { background: var(--peligro); color: #fff; }
+.paso-label { flex: 1; color: var(--etiqueta); font-weight: 500; }
+.paso-estado { font-size: 0.78rem; color: var(--texto-tenue); }
+.paso-estado.completado { color: var(--exito); }
+.paso-estado.proceso { color: var(--azul-primario); }
+.paso-estado.error { color: var(--peligro); }
+
+.cv-actual { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--borde); display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; font-size: 0.85rem; flex-wrap: wrap; }
+
+.info-cv .placeholder { color: var(--texto-tenue); font-size: 0.88rem; text-align: center; padding: 2rem 0.5rem; }
+.info-cv-titulo { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; margin: 0 0 0.2rem; }
+.punto-ok { width: 8px; height: 8px; border-radius: 50%; background: var(--exito); display: inline-block; }
+.info-fila { display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--borde); font-size: 0.88rem; }
+.info-fila span { color: var(--texto-suave); }
+.habilidades-titulo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; color: var(--texto-suave); margin: 1rem 0 0.5rem; }
+.chip-lista { margin-bottom: 0.4rem; }
+.acciones-perfil { display: flex; gap: 0.6rem; margin-top: 1.2rem; }
+.acciones-perfil .btn { text-decoration: none; display: inline-flex; align-items: center; }

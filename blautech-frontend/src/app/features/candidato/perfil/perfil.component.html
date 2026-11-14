@@ -1,0 +1,204 @@
+<div class="page">
+  <h1>Mi perfil</h1>
+  <p *ngIf="cargando">Cargando...</p>
+
+  <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  <div class="alert-exito" *ngIf="okMsg">{{ okMsg }}</div>
+
+  <div class="perfil-layout" *ngIf="!cargando">
+    <section class="card">
+      <h2>Datos personales</h2>
+      <form [formGroup]="formPerfil" (ngSubmit)="guardarPerfil()">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Correo</label>
+            <input [value]="perfil?.correo || ''" disabled />
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input formControlName="telefono" placeholder="+502 0000 0000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Fecha de nacimiento</label>
+          <input type="date" formControlName="fechaNacimiento" />
+        </div>
+        <div class="form-group">
+          <label>Dirección</label>
+          <input formControlName="direccion" />
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input formControlName="ciudad" />
+          </div>
+          <div class="form-group">
+            <label>País</label>
+            <input formControlName="pais" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción del perfil</label>
+          <textarea rows="3" formControlName="descripcionPerfil"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Disponibilidad</label>
+          <select formControlName="disponibilidad">
+            <option value="Inmediata">Inmediata</option>
+            <option value="15 dias">15 días</option>
+            <option value="1 mes">1 mes</option>
+          </select>
+        </div>
+
+        <ng-container *ngIf="existePerfil">
+          <h2 style="margin-top:1.5rem">Habilidades</h2>
+          <p class="ayuda-tag">Escriba las que usted quiera (sepárelas con coma si son varias), elija su nivel y presione Enter, o el botón Agregar. El nivel elegido aplica a todas las habilidades de este grupo.</p>
+          <div class="form-group tag-input-grupo">
+            <input
+              type="text"
+              [(ngModel)]="tagTexto"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Ej: Java, Python, Docker"
+              [disabled]="guardandoHabilidad"
+              (keydown.enter)="$event.preventDefault(); agregarPorTexto()"
+            />
+            <select
+              [(ngModel)]="nivelSeleccionado"
+              [ngModelOptions]="{ standalone: true }"
+              [disabled]="guardandoHabilidad"
+              title="Nivel de conocimiento"
+            >
+              <option value="BASICO">Básico</option>
+              <option value="INTERMEDIO">Intermedio</option>
+              <option value="AVANZADO">Avanzado</option>
+            </select>
+            <button type="button" class="btn btn-secundario" [disabled]="guardandoHabilidad || !tagTexto.trim()" (click)="agregarPorTexto()">
+              {{ guardandoHabilidad ? 'Agregando...' : 'Agregar' }}
+            </button>
+          </div>
+          <p class="alert-error" *ngIf="errorHabilidad">{{ errorHabilidad }}</p>
+          <div class="chip-lista" *ngIf="perfil?.habilidades?.length">
+            <span class="chip chip-habilidad" *ngFor="let h of perfil?.habilidades" [class.chip-sin-nivel]="!h.nivel">
+              {{ nombreHabilidad(h.idHabilidad) }}
+              <select
+                class="chip-nivel-select"
+                [ngModel]="h.nivel || ''"
+                [ngModelOptions]="{ standalone: true }"
+                [disabled]="actualizandoNivelId === h.idCandidatoHabilidad"
+                (ngModelChange)="cambiarNivel(h.idCandidatoHabilidad, $event)"
+                title="Nivel de conocimiento"
+              >
+                <option value="" disabled *ngIf="!h.nivel">Elegir nivel</option>
+                <option value="BASICO">Básico</option>
+                <option value="INTERMEDIO">Intermedio</option>
+                <option value="AVANZADO">Avanzado</option>
+              </select>
+              <button type="button" class="chip-quitar" (click)="quitarHabilidad(h.idCandidatoHabilidad)" title="Quitar">×</button>
+            </span>
+          </div>
+          <p class="ayuda-tag" *ngIf="perfil?.habilidades?.length" style="margin-top:-0.2rem;">
+            Las habilidades resaltadas todavía no tienen nivel (por ejemplo, las que detectó tu currículum): elige uno en su propio menú.
+          </p>
+        </ng-container>
+
+        <div class="acciones-perfil">
+          <button class="btn btn-primario" type="submit" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : (existePerfil ? 'Guardar perfil' : 'Crear perfil') }}
+          </button>
+          <a class="btn btn-secundario" routerLink="/curriculum">Actualizar currículum</a>
+        </div>
+      </form>
+    </section>
+
+    <aside class="card estado-perfil" *ngIf="existePerfil">
+      <p class="estado-perfil-titulo">ESTADO DEL PERFIL</p>
+      <p class="estado-perfil-pct">{{ porcentajePerfil }}%</p>
+      <div class="estado-perfil-barra">
+        <div class="estado-perfil-relleno" [style.width.%]="porcentajePerfil"></div>
+      </div>
+      <ul class="estado-perfil-lista">
+        <li *ngFor="let s of seccionesEstado">
+          <span class="punto" [class.completo]="s.completo"></span>
+          <span class="label">{{ s.label }}</span>
+          <span class="estado-texto" [class.completo]="s.completo">{{ s.textoEstado }}</span>
+        </li>
+      </ul>
+    </aside>
+  </div>
+
+  <div class="grid-2" *ngIf="!cargando" style="margin-top:1rem">
+    <section class="card">
+      <h2>Experiencia laboral</h2>
+      <form [formGroup]="formExperiencia" (ngSubmit)="guardarExperiencia()">
+        <div class="form-group"><label>Empresa</label><input formControlName="empresa" /></div>
+        <div class="form-group"><label>Puesto</label><input formControlName="puesto" /></div>
+        <div class="form-group"><label>Descripción</label><textarea rows="2" formControlName="descripcion"></textarea></div>
+        <label class="check-inline">
+          <input type="checkbox" formControlName="actualmenteTrabaja" />
+          <span>Trabajo aquí actualmente</span>
+        </label>
+        <div class="grid-2">
+          <div class="form-group"><label>Fecha inicio</label><input type="date" formControlName="fechaInicio" /></div>
+          <div class="form-group" *ngIf="!formExperiencia.get('actualmenteTrabaja')?.value">
+            <label>Fecha fin</label><input type="date" formControlName="fechaFin" />
+          </div>
+        </div>
+        <p class="alert-error" *ngIf="errorExperiencia">{{ errorExperiencia }}</p>
+        <div class="acciones-perfil">
+          <button class="btn btn-secundario" type="submit">{{ editandoExperienciaId ? 'Guardar cambios' : 'Agregar experiencia' }}</button>
+          <button class="btn btn-secundario" type="button" *ngIf="editandoExperienciaId" (click)="cancelarEdicionExperiencia()">Cancelar</button>
+        </div>
+      </form>
+      <ul *ngIf="perfil?.experiencias?.length">
+        <li *ngFor="let e of perfil?.experiencias">
+          <div class="item-titulo">{{ e.puesto }} — {{ e.empresa }}</div>
+          <div class="item-fechas">
+            {{ e.fechaInicio | date: 'MM/yyyy' }} – {{ e.actualmenteTrabaja ? 'Actualidad' : (e.fechaFin ? (e.fechaFin | date: 'MM/yyyy') : 'Sin fecha fin') }}
+          </div>
+          <div class="item-acciones">
+            <button type="button" class="btn btn-secundario" (click)="editarExperiencia(e)">Editar</button>
+            <button type="button" class="btn btn-peligro" (click)="eliminarExperiencia(e)">Eliminar</button>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Educación</h2>
+      <form [formGroup]="formEducacion" (ngSubmit)="guardarEducacion()">
+        <div class="form-group"><label>Institución</label><input formControlName="institucion" /></div>
+        <div class="form-group"><label>Título</label><input formControlName="titulo" /></div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select formControlName="estado">
+            <option value="EN_CURSO">En curso</option>
+            <option value="FINALIZADO">Finalizado</option>
+          </select>
+        </div>
+        <div class="grid-2">
+          <div class="form-group"><label>Fecha inicio</label><input type="date" formControlName="fechaInicio" /></div>
+          <div class="form-group" *ngIf="formEducacion.get('estado')?.value === 'FINALIZADO'">
+            <label>Fecha fin</label><input type="date" formControlName="fechaFin" />
+          </div>
+        </div>
+        <p class="alert-error" *ngIf="errorEducacion">{{ errorEducacion }}</p>
+        <div class="acciones-perfil">
+          <button class="btn btn-secundario" type="submit">{{ editandoEducacionId ? 'Guardar cambios' : 'Agregar educación' }}</button>
+          <button class="btn btn-secundario" type="button" *ngIf="editandoEducacionId" (click)="cancelarEdicionEducacion()">Cancelar</button>
+        </div>
+      </form>
+      <ul *ngIf="perfil?.educaciones?.length">
+        <li *ngFor="let e of perfil?.educaciones">
+          <div class="item-titulo">{{ e.titulo }} — {{ e.institucion }}</div>
+          <div class="item-fechas" *ngIf="e.fechaInicio">
+            {{ e.fechaInicio | date: 'MM/yyyy' }} – {{ e.estado === 'EN_CURSO' ? 'En curso' : (e.fechaFin ? (e.fechaFin | date: 'MM/yyyy') : 'Sin fecha fin') }}
+          </div>
+          <div class="item-acciones">
+            <button type="button" class="btn btn-secundario" (click)="editarEducacion(e)">Editar</button>
+            <button type="button" class="btn btn-peligro" (click)="eliminarEducacion(e)">Eliminar</button>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>

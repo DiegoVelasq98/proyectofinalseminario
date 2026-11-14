@@ -1,0 +1,52 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <div class="header-row">
+    <h1>Vacantes</h1>
+    <a class="btn btn-primario" routerLink="/vacantes/nueva">+ Crear vacante</a>
+  </div>
+
+  <div class="toolbar-row">
+    <div class="tabs">
+      <button class="tab" [class.activo]="filtro === 'TODAS'" (click)="setFiltro('TODAS')">Todas</button>
+      <button class="tab" [class.activo]="filtro === 'ACTIVA'" (click)="setFiltro('ACTIVA')">Activa</button>
+      <button class="tab" [class.activo]="filtro === 'CERRADA'" (click)="setFiltro('CERRADA')">Cerrada</button>
+      <button class="tab" [class.activo]="filtro === 'BORRADOR'" (click)="setFiltro('BORRADOR')">Borrador</button>
+    </div>
+    <input class="search-input" type="text" placeholder="Buscar vacante o área" [(ngModel)]="busqueda" />
+  </div>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && filtradas.length === 0">No hay vacantes que coincidan con este filtro.</p>
+
+  <table *ngIf="!cargando && filtradas.length">
+    <thead>
+      <tr><th>Vacante</th><th>Área</th><th>Responsable</th><th>Publicación</th><th>Candidatos</th><th>Estado</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of filtradas">
+        <td>
+          <strong>{{ v.titulo }}</strong>
+          <div class="fecha">{{ v.modalidad || 'Sin modalidad' }}{{ v.ubicacion ? ' · ' + v.ubicacion : '' }}</div>
+        </td>
+        <td>{{ v.areaNombre || '—' }}</td>
+        <td>{{ v.creadoPor }}</td>
+        <td>{{ v.estado === 'BORRADOR' ? '—' : (v.fechaPublicacion | date: 'dd/MM/yyyy') }}</td>
+        <td>{{ conteoPostulaciones[v.idVacante] ?? '—' }}</td>
+        <td><span [class]="claseBadge(v.estado)">{{ v.estado }}</span></td>
+        <td class="acciones">
+          <button type="button" class="btn btn-secundario" (click)="nav.ir('/vacantes/detalle', { id: v.idVacante })">Ver detalle</button>
+          <button type="button" class="btn btn-secundario" (click)="nav.ir('/vacantes/editar', { id: v.idVacante })">Editar</button>
+          <button
+            class="btn btn-primario"
+            *ngIf="v.estado === 'BORRADOR'"
+            [disabled]="publicando === v.idVacante"
+            (click)="publicar(v.idVacante)"
+          >
+            {{ publicando === v.idVacante ? 'Publicando...' : 'Publicar' }}
+          </button>
+          <button class="btn btn-peligro" *ngIf="v.estado === 'ACTIVA'" (click)="cerrar(v.idVacante)">Cerrar</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,159 @@
+<div class="page">
+  <p class="breadcrumb">Recursos Humanos</p>
+  <h1>Postulaciones</h1>
+
+  <div class="toolbar-row" *ngIf="!vacanteFija">
+    <label style="font-size:0.85rem; color: var(--texto-suave);">Vacante</label>
+    <select
+      class="search-input"
+      style="flex: 0 0 320px;"
+      [ngModel]="idVacanteSeleccionada"
+      (ngModelChange)="cambiarVacante($event)"
+    >
+      <option *ngFor="let v of vacantes" [value]="v.idVacante">{{ v.titulo }}</option>
+    </select>
+    <span class="fecha">{{ postulaciones.length }} postulaciones</span>
+  </div>
+
+  <a *ngIf="vacanteFija" routerLink="/vacantes" class="volver">&larr; Volver a vacantes</a>
+
+  <div class="toolbar-row" *ngIf="!cargando && postulaciones.length">
+    <label style="font-size:0.85rem; color: var(--texto-suave);">Ordenar por</label>
+    <select class="search-input" style="flex: 0 0 200px;" [(ngModel)]="orden">
+      <option value="compatibilidad">Mejor compatibilidad</option>
+      <option value="fecha">Más recientes</option>
+    </select>
+    <label style="font-size:0.85rem; color: var(--texto-suave);">Compatibilidad</label>
+    <select class="search-input" style="flex: 0 0 160px;" [(ngModel)]="filtroClasificacion">
+      <option value="TODAS">Todas</option>
+      <option value="ALTA">Alta</option>
+      <option value="MEDIA">Media</option>
+      <option value="BAJA">Baja</option>
+    </select>
+    <span class="fecha">{{ postulacionesMostradas.length }} de {{ postulaciones.length }}</span>
+    <button class="btn btn-secundario" (click)="exportarCsv()">Exportar CSV</button>
+    <button class="btn btn-primario" [disabled]="idsComparar.length < 2" (click)="abrirComparacion()">
+      Comparar seleccionados ({{ idsComparar.length }})
+    </button>
+  </div>
+
+  <p *ngIf="cargando">Cargando...</p>
+  <p class="vacia" *ngIf="!cargando && vacantes.length === 0 && !vacanteFija">Todavía no hay vacantes publicadas.</p>
+  <p class="vacia" *ngIf="!cargando && idVacanteSeleccionada && postulaciones.length === 0">
+    Todavía no hay candidatos postulados a esta vacante.
+  </p>
+  <p class="vacia" *ngIf="!cargando && postulaciones.length > 0 && postulacionesMostradas.length === 0">
+    Ningún candidato coincide con el filtro de compatibilidad seleccionado.
+  </p>
+
+  <table *ngIf="!cargando && postulacionesMostradas.length">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Candidato</th>
+        <th>Experiencia</th>
+        <th>Postulación</th>
+        <th>Compatibilidad</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of postulacionesMostradas">
+        <td>
+          <input
+            type="checkbox"
+            [checked]="enComparacion(p.idPostulacion)"
+            [disabled]="!enComparacion(p.idPostulacion) && idsComparar.length >= MAX_COMPARAR"
+            (change)="toggleComparar(p.idPostulacion)"
+            title="Seleccionar para comparar (máx. 3)"
+          />
+        </td>
+        <td><strong>{{ p.nombreCandidato }}</strong></td>
+        <td>{{ aniosDelCandidato(p.idCandidato) || '—' }} {{ aniosDelCandidato(p.idCandidato) ? 'años' : '' }}</td>
+        <td>{{ p.fechaPostulacion | date: 'dd/MM/yyyy' }}</td>
+        <td>
+          <ng-container *ngIf="analisisPorPostulacion[p.idPostulacion] as a">
+            <div class="compat-wrap" *ngIf="a !== 'sin-datos'" [class]="claseCompatibilidad($any(a).porcentajeCoincidencia)">
+              <span class="compat-pct">{{ $any(a).porcentajeCoincidencia }}%</span>
+              <span class="compat-bar"><span [style.width.%]="$any(a).porcentajeCoincidencia"></span></span>
+            </div>
+            <span *ngIf="a === 'sin-datos'" class="fecha">Sin datos</span>
+          </ng-container>
+          <button
+            class="btn btn-secundario"
+            style="padding: 0.3rem 0.6rem; font-size: 0.78rem;"
+            *ngIf="!analisisPorPostulacion[p.idPostulacion]"
+            [disabled]="generando === p.idPostulacion"
+            (click)="generarAnalisis(p.idPostulacion)"
+          >
+            {{ generando === p.idPostulacion ? 'Analizando...' : 'Generar' }}
+          </button>
+        </td>
+        <td><span [class]="claseBadge(p.estado)">{{ p.estado }}</span></td>
+        <td>
+          <button type="button" class="btn btn-secundario" (click)="nav.ir('/postulaciones/detalle', { id: p.idPostulacion, vacante: idVacanteSeleccionada ?? undefined })">
+            Abrir
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="modal-overlay" *ngIf="mostrarComparacion" (click)="cerrarComparacion()">
+    <div class="modal-caja modal-caja-xl" (click)="$event.stopPropagation()">
+      <button class="modal-cerrar" (click)="cerrarComparacion()">&times;</button>
+      <h3>Comparar candidatos</h3>
+      <table style="margin-top: 0.8rem;">
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th *ngFor="let p of postulacionesComparadas">
+              {{ p.nombreCandidato }}
+              <button class="btn btn-secundario" style="padding:0.15rem 0.5rem; font-size:0.72rem; margin-left:0.4rem;" (click)="quitarDeComparacion(p.idPostulacion)">Quitar</button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Compatibilidad</strong></td>
+            <td *ngFor="let p of postulacionesComparadas">
+              <ng-container *ngIf="analisisDe(p.idPostulacion) as a; else sinAnalisisCompara">
+                <span [class]="claseCompatibilidad(a.porcentajeCoincidencia)">{{ a.porcentajeCoincidencia }}% — {{ a.clasificacion }}</span>
+              </ng-container>
+              <ng-template #sinAnalisisCompara><span class="fecha">Sin análisis</span></ng-template>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Experiencia</strong></td>
+            <td *ngFor="let p of postulacionesComparadas">
+              {{ aniosDelCandidato(p.idCandidato) || '—' }} {{ aniosDelCandidato(p.idCandidato) ? 'años' : '' }}
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Estado</strong></td>
+            <td *ngFor="let p of postulacionesComparadas"><span [class]="claseBadge(p.estado)">{{ p.estado }}</span></td>
+          </tr>
+          <tr>
+            <td><strong>Habilidades que cumple</strong></td>
+            <td *ngFor="let p of postulacionesComparadas">
+              <ng-container *ngIf="analisisDe(p.idPostulacion) as a">
+                <span class="chip" *ngFor="let d of habilidadesCoincidentes(a.detalles)">{{ d.criterio }}</span>
+                <span class="fecha" *ngIf="!habilidadesCoincidentes(a.detalles).length">—</span>
+              </ng-container>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Habilidades que le faltan</strong></td>
+            <td *ngFor="let p of postulacionesComparadas">
+              <ng-container *ngIf="analisisDe(p.idPostulacion) as a">
+                <span class="chip chip-faltante" *ngFor="let d of habilidadesFaltantes(a.detalles)">{{ d.criterio }}</span>
+                <span class="fecha" *ngIf="!habilidadesFaltantes(a.detalles).length">—</span>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

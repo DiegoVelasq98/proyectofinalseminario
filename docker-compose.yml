@@ -1,0 +1,94 @@
+# Levanta los 3 servicios de Blautech en una sola red interna de Docker:
+#   - mysql: la base de datos
+#   - backend: Spring Boot (reclutamiento/)
+#   - frontend: Angular compilado y servido por Nginx (blautech-frontend/),
+#     que además reenvía /api/* al backend (ver blautech-frontend/nginx.conf)
+#
+# Cómo usarlo (resumen; el detalle completo está en la guía de despliegue):
+#   1. Copia .env.example a .env y completa tus valores reales.
+#   2. Pon el dump de tu base de datos actual en mysql-init/01-schema.sql
+#      (así el contenedor de MySQL, que nace vacío, queda con tu esquema
+#      y tus datos la primera vez que se crea).
+#   3. docker compose up -d --build
+#   4. Entra por http://<IP-o-dominio-del-servidor>  (puerto 80)
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-blautech_bd}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Todo archivo .sql que pongas aquí se ejecuta UNA SOLA VEZ, la
+      # primera vez que se crea el volumen de datos (útil para cargar tu
+      # esquema/datos actuales). Si ya existe el volumen, esta carpeta
+      # se ignora -- no es un backup automático en cada arranque.
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./reclutamiento
+    restart: unless-stopped
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-blautech_bd}
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_API_HABILITADO: ${GEMINI_API_HABILITADO:-true}
+      # Correo de confirmación al candidato vía n8n (opcional, apagado por
+      # defecto). Ver n8n/README.md.
+      N8N_HABILITADO: ${N8N_HABILITADO:-false}
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://n8n:5678/webhook}
+    volumes:
+      # Para que los currículums subidos sobrevivan aunque se reconstruya
+      # el contenedor del backend.
+      - curriculums_data:/app/archivos/curriculums
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./blautech-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Certificados de Let's Encrypt generados en el host (VPS) con
+      # certbot. Se montan de solo lectura; nginx.conf los espera en
+      # /etc/nginx/ssl/live/<dominio>/fullchain.pem y privkey.pem.
+      - /etc/letsencrypt:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+
+  # n8n (opcional): NO arranca con un "docker compose up -d" normal, solo con
+  #   docker compose --profile automatizacion up -d n8n
+  # El editor queda atado a 127.0.0.1 del servidor (no se expone a internet).
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    profiles: ["automatizacion"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: America/Guatemala
+      TZ: America/Guatemala
+      N8N_SECURE_COOKIE: "false"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  mysql_data:
+  curriculums_data:
+  n8n_data:

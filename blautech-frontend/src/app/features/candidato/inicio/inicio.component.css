@@ -1,0 +1,15 @@
+.bienvenida { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.bienvenida h2 { margin: 0 0 0.3rem; }
+.bienvenida p { margin: 0; color: var(--texto-suave); font-size: 0.9rem; }
+.bienvenida-acciones { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.bienvenida-acciones .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+.inicio-grid { margin-top: 0; }
+
+.placeholder { color: var(--texto-tenue); font-size: 0.88rem; }
+
+.fila-postulacion { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.7rem 0; border-bottom: 1px solid var(--borde); }
+.fila-postulacion:last-child { border-bottom: none; }
+.fila-titulo { font-weight: 600; margin: 0; font-size: 0.92rem; }
+.fila-sub { margin: 0.15rem 0 0; font-size: 0.8rem; color: var(--texto-suave); }
+.fila-postulacion .btn { text-decoration: none; white-space: nowrap; }

@@ -1,0 +1,163 @@
+<div class="page">
+  <p class="breadcrumb">Vacantes</p>
+  <h1>{{ modoEdicion ? 'Editar vacante' : 'Crear vacante' }}</h1>
+  <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <a routerLink="/vacantes" class="volver">&larr; Cancelar y regresar</a>
+
+  <div class="form-layout">
+    <form [formGroup]="form" (ngSubmit)="enviar()" class="card">
+      <h3>Información general</h3>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Nombre del puesto *</label>
+          <input formControlName="titulo" placeholder="Ej. Desarrollador Backend Java" />
+          <span class="error-msg" *ngIf="form.get('titulo')?.touched && form.get('titulo')?.invalid">
+            El título es obligatorio.
+          </span>
+        </div>
+        <div class="form-group">
+          <label>Área *</label>
+          <select formControlName="idArea">
+            <option [ngValue]="null">Selecciona un área...</option>
+            <option *ngFor="let a of areas" [ngValue]="a.idArea">{{ a.nombre }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción *</label>
+        <textarea rows="3" formControlName="descripcion" placeholder="Responsabilidades principales del puesto"></textarea>
+        <span class="error-msg" *ngIf="form.get('descripcion')?.touched && form.get('descripcion')?.invalid">
+          La descripción es obligatoria.
+        </span>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Experiencia requerida</label>
+          <select formControlName="experienciaRequerida">
+            <option value="">Sin especificar</option>
+            <option value="Sin experiencia">Sin experiencia</option>
+            <option value="1 año">1 año</option>
+            <option value="2 años">2 años</option>
+            <option value="3 años">3 años</option>
+            <option value="5 años">5 años o más</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nivel académico</label>
+          <select formControlName="nivelAcademico">
+            <option value="">Sin especificar</option>
+            <option value="Diversificado">Diversificado</option>
+            <option value="Estudiante universitario">Estudiante universitario</option>
+            <option value="Licenciatura / Ingeniería">Licenciatura / Ingeniería</option>
+            <option value="Maestría">Maestría</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>Modalidad</label>
+          <select formControlName="modalidad">
+            <option value="Presencial">Presencial</option>
+            <option value="Hibrido">Híbrido</option>
+            <option value="Remoto">Remoto</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Ubicación</label><input formControlName="ubicacion" placeholder="Guatemala, Zona 10" /></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group"><label>Fecha límite</label><input type="date" formControlName="fechaCierre" /></div>
+        <div class="form-group" *ngIf="!modoEdicion">
+          <label>Estado inicial</label>
+          <select formControlName="estadoInicial">
+            <option value="ACTIVA">Activa</option>
+            <option value="BORRADOR">Borrador</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Conocimientos requeridos</label>
+        <textarea rows="2" formControlName="conocimientosRequeridos" placeholder="Ej. Arquitectura de microservicios, bases de datos relacionales"></textarea>
+      </div>
+
+      <h3 style="margin-top: 1.4rem;">Habilidades y tecnologías</h3>
+      <p class="subt" style="margin: -0.4rem 0 0.6rem;">Escribe el nombre y presiona Enter (o Agregar) para sumarla como etiqueta.</p>
+
+      <div class="tag-input-row">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Java, Spring Boot, comunicación..."
+          list="catalogo-habilidades"
+          [(ngModel)]="tagTexto"
+          [ngModelOptions]="{standalone: true}"
+          (keydown.enter)="$event.preventDefault(); agregarPorTexto()"
+        />
+        <datalist id="catalogo-habilidades">
+          <option *ngFor="let n of nombresCatalogo" [value]="n"></option>
+        </datalist>
+
+        <select [(ngModel)]="tagNivel" [ngModelOptions]="{standalone: true}">
+          <option value="">Cualquier nivel</option>
+          <option value="BASICO">Básico</option>
+          <option value="INTERMEDIO">Intermedio</option>
+          <option value="AVANZADO">Avanzado</option>
+        </select>
+
+        <label class="chk-obligatoria">
+          <input type="checkbox" [(ngModel)]="tagObligatoria" [ngModelOptions]="{standalone: true}" />
+          Obligatoria
+        </label>
+
+        <button type="button" class="btn btn-secundario" [disabled]="!tagTexto.trim() || guardandoHabilidad" (click)="agregarPorTexto()">
+          {{ guardandoHabilidad ? 'Agregando...' : '+ Agregar' }}
+        </button>
+      </div>
+      <p class="error-msg" *ngIf="errorHabilidad">{{ errorHabilidad }}</p>
+
+      <div style="margin: 0.8rem 0 1rem;">
+        <span class="chip" *ngFor="let h of habilidadesGuardadas">
+          {{ nombreHabilidad(h.idHabilidad) }}{{ h.nivelRequerido ? ' · ' + h.nivelRequerido : '' }}{{ h.esObligatoria ? ' · Obligatoria' : ' · Deseable' }}
+        </span>
+        <span class="chip" *ngFor="let h of habilidadesPendientes">
+          {{ h.nombre }}{{ h.nivelRequerido ? ' · ' + h.nivelRequerido : '' }}{{ h.esObligatoria ? ' · Obligatoria' : ' · Deseable' }}
+          <a (click)="quitarPendiente(h.idHabilidad)" title="Quitar">✕</a>
+        </span>
+        <p class="vacia" *ngIf="!habilidadesGuardadas.length && !habilidadesPendientes.length">
+          Todavía no se ha agregado ninguna habilidad requerida.
+        </p>
+      </div>
+
+      <div class="acciones-form">
+        <a class="btn btn-secundario" routerLink="/vacantes">Cancelar</a>
+        <button class="btn btn-primario" type="submit" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : (modoEdicion ? 'Guardar cambios' : 'Publicar vacante') }}
+        </button>
+      </div>
+    </form>
+
+    <div class="card vista-previa">
+      <p class="kpi-etiqueta">Vista previa</p>
+      <h3 style="margin-bottom: 2px;">{{ form.get('titulo')?.value || 'Nombre del puesto' }}</h3>
+      <p class="subt" style="margin-top:0;">
+        {{ nombreAreaSeleccionada || 'Área' }} · {{ form.get('modalidad')?.value || 'Modalidad' }}{{ form.get('ubicacion')?.value ? ' · ' + form.get('ubicacion')?.value : ' · Ubicación pendiente' }}
+      </p>
+      <p>{{ form.get('descripcion')?.value || 'La descripción se mostrará aquí.' }}</p>
+      <div class="info-lista" style="margin-top: 1rem;">
+        <div class="fila"><span class="k">Experiencia</span><span class="v">{{ form.get('experienciaRequerida')?.value || '—' }}</span></div>
+        <div class="fila"><span class="k">Nivel académico</span><span class="v">{{ form.get('nivelAcademico')?.value || '—' }}</span></div>
+        <div class="fila"><span class="k">Fecha límite</span><span class="v">{{ form.get('fechaCierre')?.value || '—' }}</span></div>
+      </div>
+      <div style="margin-top: 1rem;" *ngIf="habilidadesGuardadas.length || habilidadesPendientes.length">
+        <span class="chip" *ngFor="let h of habilidadesGuardadas">{{ nombreHabilidad(h.idHabilidad) }}</span>
+        <span class="chip" *ngFor="let h of habilidadesPendientes">{{ h.nombre }}</span>
+      </div>
+    </div>
+  </div>
+</div>

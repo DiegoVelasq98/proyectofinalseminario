@@ -1,0 +1,295 @@
+/* ============================================================
+   Blautech Guatemala — Sistema de Reclutamiento y Selección
+   Hoja de estilos global, alineada al diseño del prototipo
+   navegable (paleta, tipografía IBM Plex y componentes).
+   ============================================================ */
+
+:root {
+  /* Paleta tomada del prototipo aprobado */
+  --azul-oscuro: #16283c;   /* sidebar / panel de marca */
+  --azul-primario: #2a4d74; /* acciones primarias */
+  --azul-primario-hover: #1e3a58;
+  --azul-claro: #eef2f7;
+  --azul-texto: #8fb4d6;
+
+  --texto: #1a1f27;
+  --texto-suave: #667085;
+  --texto-tenue: #98a2b3;
+  --etiqueta: #344054;
+  --dato: #475467;
+
+  --borde: #e4e7ec;
+  --borde-input: #d0d5dd;
+  --fondo: #f7f9fb;
+  --fondo-fila: #fafbfc;
+  --fondo-hover: #f0f2f5;
+  --blanco: #ffffff;
+
+  --acento: #4d86bf;
+
+  --exito: #2f7d5d;
+  --exito-fondo: #edf6f1;
+  --alerta: #b5820a;
+  --alerta-fondo: #fdf6e6;
+  --peligro: #a44634;
+  --peligro-fondo: #fdf2f0;
+  --neutro: #98a2b3;
+  --neutro-fondo: #f2f4f7;
+
+  --radio: 8px;
+  --radio-sm: 6px;
+  --sombra: 0 1px 4px rgba(16, 24, 40, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  color: var(--texto);
+  margin-top: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p { color: var(--dato); }
+
+a { color: var(--azul-primario); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.card {
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.4rem 1.6rem;
+  box-shadow: var(--sombra);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.62rem 1.1rem;
+  border-radius: var(--radio-sm);
+  border: none;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-primario { background: var(--azul-primario); color: #fff; }
+.btn-primario:hover:not(:disabled) { background: var(--azul-primario-hover); }
+
+.btn-secundario { background: #fff; color: var(--etiqueta); border: 1px solid var(--borde-input); }
+.btn-secundario:hover:not(:disabled) { background: var(--fondo-fila); border-color: var(--azul-primario); }
+
+.btn-peligro { background: var(--peligro-fondo); color: var(--peligro); }
+.btn-peligro:hover:not(:disabled) { background: #fbe4df; }
+.btn-exito { background: var(--exito-fondo); color: var(--exito); }
+.btn-exito:hover:not(:disabled) { background: #dcefe4; }
+
+.btn-acento { background: var(--acento); color: #fff; }
+.btn-acento:hover:not(:disabled) { background: #3f74a8; }
+
+.form-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.form-group label { font-weight: 600; font-size: 0.8rem; color: var(--etiqueta); }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 0.62rem 0.75rem;
+  border: 1px solid var(--borde-input);
+  border-radius: var(--radio-sm);
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--dato);
+  background: #fff;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--azul-primario);
+  box-shadow: 0 0 0 3px rgba(42, 77, 116, 0.12);
+}
+
+.error-msg { color: var(--peligro); font-size: 0.8rem; }
+.alert-error { background: var(--peligro-fondo); color: var(--peligro); padding: 0.75rem 1rem; border-radius: var(--radio-sm); margin-bottom: 1rem; font-size: 0.9rem; }
+.alert-exito { background: var(--exito-fondo); color: var(--exito); padding: 0.75rem 1rem; border-radius: var(--radio-sm); margin-bottom: 1rem; font-size: 0.9rem; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--fondo-hover); font-size: 0.85rem; }
+th {
+  color: var(--texto-suave);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--fondo-fila);
+  border-bottom: 1px solid var(--borde);
+}
+tbody tr:hover { background: var(--fondo-fila); }
+
+.badge {
+  display: inline-block;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.badge-activa, .badge-activo, .badge-contratado { background: var(--exito-fondo); color: var(--exito); }
+.badge-cerrada, .badge-inactivo, .badge-rechazada { background: var(--peligro-fondo); color: var(--peligro); }
+.badge-recibida, .badge-borrador { background: var(--neutro-fondo); color: var(--texto-suave); }
+.badge-parcial { background: var(--alerta-fondo); color: var(--alerta); }
+.badge-retirada { background: var(--neutro-fondo); color: var(--texto-suave); }
+.badge-en_revision { background: var(--alerta-fondo); color: var(--alerta); }
+.badge-preoseleccionado { background: var(--azul-claro); color: var(--azul-primario); }
+
+.page { max-width: 1120px; margin: 0 auto; padding: 1.8rem 1.6rem 3rem; }
+.page h1 { font-size: 1.35rem; }
+.subt { color: var(--texto-suave); font-size: 0.9rem; margin: -0.6rem 0 1.4rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   Componentes agregados para las pantallas de RRHH (alineadas
+   al diseño del prototipo navegable: panel general, candidatos,
+   análisis de compatibilidad).
+   ============================================================ */
+
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.tabs { display: inline-flex; background: var(--fondo-fila); border: 1px solid var(--borde); border-radius: var(--radio-sm); padding: 3px; gap: 2px; }
+.tab {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--texto-suave);
+  cursor: pointer;
+  font-family: inherit;
+}
+.tab.activo { background: #fff; color: var(--texto); box-shadow: var(--sombra); }
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--borde-input);
+  border-radius: var(--radio-sm);
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+.search-input:focus { outline: none; border-color: var(--azul-primario); box-shadow: 0 0 0 3px rgba(42, 77, 116, 0.12); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.2rem; }
+@media (max-width: 900px) { .kpi-grid { grid-template-columns: 1fr 1fr; } }
+.kpi-card { background: #fff; border: 1px solid var(--borde); border-radius: var(--radio); padding: 1.1rem 1.3rem; box-shadow: var(--sombra); }
+.kpi-etiqueta { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-suave); margin: 0 0 0.5rem; }
+.kpi-valor { font-size: 1.9rem; font-weight: 700; color: var(--texto); margin: 0 0 0.3rem; }
+.kpi-detalle { font-size: 0.8rem; color: var(--texto-suave); margin: 0; }
+
+.compat-wrap { display: flex; align-items: center; gap: 0.6rem; min-width: 130px; }
+.compat-pct { font-weight: 700; font-size: 0.85rem; min-width: 34px; }
+.compat-bar { flex: 1; height: 5px; border-radius: 999px; background: var(--neutro-fondo); overflow: hidden; }
+.compat-bar > span { display: block; height: 100%; border-radius: 999px; }
+.compat-alta { color: var(--exito); }
+.compat-alta .compat-bar > span { background: var(--exito); }
+.compat-media { color: var(--alerta); }
+.compat-media .compat-bar > span { background: var(--alerta); }
+.compat-baja { color: var(--peligro); }
+.compat-baja .compat-bar > span { background: var(--peligro); }
+
+.chip { display: inline-block; padding: 0.18rem 0.55rem; border-radius: 5px; background: var(--azul-claro); color: var(--azul-primario); font-size: 0.72rem; font-weight: 600; margin: 0 0.3rem 0.3rem 0; }
+.chip-nuevo { background: #fff3cd; color: #8a6400; border: 1px solid #f0d58c; }
+.chip-faltante { background: var(--peligro-fondo); color: var(--peligro); }
+.chip-extra { background: var(--neutro-fondo); color: var(--texto-suave); }
+.chip-parcial { background: var(--alerta-fondo); color: var(--alerta); }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+
+.avatar-circle { width: 42px; height: 42px; border-radius: 50%; background: var(--azul-claro); color: var(--azul-primario); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; }
+
+.detalle-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.detalle-header h1 { margin-bottom: 0.2rem; }
+
+.tab-strip { display: flex; gap: 1.6rem; border-bottom: 1px solid var(--borde); margin: 1.2rem 0 1.4rem; }
+.tab-strip button { background: none; border: none; font-family: inherit; font-size: 0.87rem; font-weight: 600; color: var(--texto-suave); padding: 0.7rem 0.1rem; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-strip button.activo { color: var(--azul-primario); border-bottom-color: var(--azul-primario); }
+
+.ranking-item { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid var(--borde); border-radius: var(--radio); padding: 0.9rem 1.1rem; margin-bottom: 0.8rem; cursor: pointer; font-family: inherit; }
+.ranking-item.seleccionado { border-color: var(--azul-primario); box-shadow: 0 0 0 3px rgba(42, 77, 116, 0.12); }
+.ranking-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.ranking-nombre { font-weight: 700; font-size: 0.92rem; }
+.ranking-pct { font-weight: 700; font-size: 1.05rem; }
+.ranking-sub { font-size: 0.78rem; color: var(--texto-suave); margin-top: 0.4rem; }
+
+.aviso-box { background: var(--azul-claro); border-left: 3px solid var(--azul-primario); border-radius: 6px; padding: 0.8rem 1rem; font-size: 0.85rem; color: var(--etiqueta); margin-top: 1.2rem; }
+
+.info-lista { display: flex; flex-direction: column; gap: 0.75rem; }
+.info-lista .fila { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.87rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--fondo-hover); }
+.info-lista .fila:last-child { border-bottom: none; padding-bottom: 0; }
+.info-lista .fila .k { color: var(--texto-suave); }
+.info-lista .fila .v { color: var(--texto); font-weight: 600; text-align: right; }
+
+.vacia { color: var(--texto-suave); font-size: 0.9rem; padding: 1.2rem 0; }
+.breadcrumb { font-size: 0.78rem; color: var(--texto-tenue); margin: 0 0 0.2rem; }
+
+/* Modal genérico (overlay + caja centrada). Usado por el reinicio de
+   contraseña en Admin y por el detalle de requisitos en Vacantes del
+   candidato -- mismo patrón, para no repetir estilos por pantalla. */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+.modal-caja {
+  position: relative;
+  background: #fff;
+  border-radius: var(--radio);
+  box-shadow: 0 18px 40px rgba(16, 24, 40, 0.18);
+  padding: 1.6rem 1.8rem;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal-caja-lg { max-width: 560px; }
+.modal-caja-xl { max-width: 920px; }
+.modal-caja h3 { margin: 0 0 0.3rem; }
+.modal-acciones { display: flex; gap: 0.6rem; margin-top: 1rem; }
+.modal-acciones .btn { flex: 1; }
+.modal-cerrar {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--texto-suave);
+  cursor: pointer;
+}
+

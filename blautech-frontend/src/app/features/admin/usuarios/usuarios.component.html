@@ -1,0 +1,53 @@
+<div class="page">
+  <h1>Gestión de usuarios y accesos</h1>
+  <p class="subt">Crear, consultar y actualizar cuentas, asignando el rol y estado de acceso correspondientes (CU05).</p>
+
+  <div class="alert-error" *ngIf="errorMsg">{{ errorMsg }}</div>
+  <p *ngIf="cargando">Cargando...</p>
+
+  <table *ngIf="!cargando && usuarios.length">
+    <thead>
+      <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of usuarios">
+        <td>{{ u.nombre }} {{ u.apellido }}</td>
+        <td>{{ u.correo }}</td>
+        <td>
+          <select (change)="cambiarRol(u.idUsuario, $any($event.target).value)"
+                  [disabled]="actualizando === u.idUsuario">
+            <option *ngFor="let r of roles" [value]="r" [selected]="r === u.rol">{{ r }}</option>
+          </select>
+        </td>
+        <td><span [class]="claseBadge(u.estado)">{{ u.estado }}</span></td>
+        <td>
+          <button class="btn" [class.btn-peligro]="u.estado === 'ACTIVO'" [class.btn-secundario]="u.estado !== 'ACTIVO'"
+                  (click)="toggleEstado(u)" [disabled]="actualizando === u.idUsuario">
+            {{ u.estado === 'ACTIVO' ? 'Desactivar' : 'Activar' }}
+          </button>
+          <button class="btn btn-secundario" (click)="reiniciarContrasena(u)" [disabled]="actualizando === u.idUsuario">
+            Reiniciar contraseña
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert-error" *ngIf="reinicioErrorMsg">{{ reinicioErrorMsg }}</div>
+
+  <div class="modal-overlay" *ngIf="reinicioResultado" (click)="cerrarModalReinicio()">
+    <div class="modal-caja" (click)="$event.stopPropagation()">
+      <h3>Contraseña temporal generada</h3>
+      <p class="subt" style="margin-top:0;">
+        Para <strong>{{ reinicioResultado.correo }}</strong>. Entrégasela al usuario ahora mismo: no vuelve
+        a mostrarse después de cerrar esta ventana.
+      </p>
+      <div class="modal-contrasena">{{ reinicioResultado.contrasenaTemporal }}</div>
+      <p class="subt">Al iniciar sesión con esta contraseña, el sistema le pedirá crear una nueva antes de dejarlo ver cualquier otra pantalla.</p>
+      <div class="modal-acciones">
+        <button class="btn btn-secundario" (click)="copiarContrasena()">Copiar</button>
+        <button class="btn btn-primario" (click)="cerrarModalReinicio()">Listo, ya la entregué</button>
+      </div>
+    </div>
+  </div>
+</div>

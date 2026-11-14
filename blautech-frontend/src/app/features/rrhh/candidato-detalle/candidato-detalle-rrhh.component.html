@@ -1,0 +1,70 @@
+<div class="page" *ngIf="!cargando && candidato as c">
+  <p class="breadcrumb"><a routerLink="/candidatos">Candidatos</a></p>
+  <div class="detalle-header">
+    <div style="display:flex; gap:0.9rem; align-items:center;">
+      <div class="avatar-circle" style="width:56px;height:56px;font-size:1.1rem;">{{ siglas }}</div>
+      <div>
+        <h1 style="margin-bottom:2px;">{{ c.nombre }} {{ c.apellido }}</h1>
+        <p class="subt" style="margin:0;">{{ c.correo }}{{ anios ? ' · ' + anios + ' años de experiencia' : '' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 1.2rem;">
+    <div class="card">
+      <h3>Datos generales</h3>
+      <div class="info-lista">
+        <div class="fila"><span class="k">Teléfono</span><span class="v">{{ c.telefono || '—' }}</span></div>
+        <div class="fila"><span class="k">Ciudad</span><span class="v">{{ c.ciudad || '—' }}</span></div>
+        <div class="fila"><span class="k">País</span><span class="v">{{ c.pais || '—' }}</span></div>
+        <div class="fila"><span class="k">Disponibilidad</span><span class="v">{{ c.disponibilidad || '—' }}</span></div>
+      </div>
+      <p style="margin-top: 0.8rem;">{{ c.descripcionPerfil || 'Sin descripción de perfil.' }}</p>
+    </div>
+
+    <div class="card">
+      <h3>Habilidades</h3>
+      <p class="vacia" *ngIf="!c.habilidades.length">Sin habilidades registradas.</p>
+      <span class="chip" *ngFor="let h of c.habilidades">{{ nombreHabilidad(h.idHabilidad) }} · {{ h.nivel || 'Sin nivel' }}</span>
+
+      <div class="cv-box" *ngIf="c.curriculumNombreArchivo" style="margin-top: 0.8rem;">
+        <span class="cv-icono">PDF</span>
+        <div style="flex:1;">
+          <strong>{{ c.curriculumNombreArchivo }}</strong>
+          <div class="fecha">Cargado el {{ c.curriculumFechaCarga | date: 'dd/MM/yyyy' }}</div>
+        </div>
+        <button class="btn btn-secundario" type="button" (click)="descargarCv()">
+          Ver currículum
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top: 1rem;">
+    <div class="card">
+      <h3>Experiencia laboral</h3>
+      <p class="vacia" *ngIf="!c.experiencias.length">Sin experiencia registrada.</p>
+      <div class="info-lista">
+        <div class="fila" *ngFor="let e of c.experiencias">
+          <span class="k">{{ e.puesto }} · {{ e.empresa }}</span>
+          <span class="v">{{ e.fechaInicio | date: 'MM/yyyy' }} — {{ e.actualmenteTrabaja ? 'Actual' : (e.fechaFin | date: 'MM/yyyy') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Educación</h3>
+      <p class="vacia" *ngIf="!c.educaciones.length">Sin educación registrada.</p>
+      <div class="info-lista">
+        <div class="fila" *ngFor="let ed of c.educaciones">
+          <span class="k">{{ ed.titulo }} · {{ ed.institucion }}</span>
+          <span class="v">
+            {{ ed.fechaInicio ? (ed.fechaInicio | date: 'MM/yyyy') : '—' }} — {{ ed.estado === 'EN_CURSO' ? 'En curso' : (ed.fechaFin ? (ed.fechaFin | date: 'MM/yyyy') : 'Sin fecha fin') }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p *ngIf="cargando">Cargando...</p>
